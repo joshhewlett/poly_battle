@@ -1,8 +1,4 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
-    }
-}
+pub mod game_state;
+pub mod traits;
+pub mod structs;
+pub mod game_objects;
