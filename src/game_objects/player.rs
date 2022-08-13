@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+use sdl2::pixels::Color;
 use sdl2::rect::Point;
 use crate::traits::*;
 use crate::structs::*;
@@ -16,15 +18,60 @@ pub struct Player {
     position: Point,
     shape: Shape,
     current_direction: Direction,
+    coin_count: i32,
 }
 
 impl Player {
     pub fn new(position: Point) -> Self {
         Player {
             position,
-            shape: Shape::default(),
+            shape: Player::get_shape(),
             current_direction: Direction::default(),
+            coin_count: 0,
         }
+    }
+
+    fn get_shape() -> Shape {
+        let shape: Vec<Vec<Option<Color>>> = vec![
+            vec![Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED),
+                 Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED)],
+            vec![Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED),
+                 Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED)],
+            vec![Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED),
+                 Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED)],
+            vec![Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED),
+                 Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED)],
+            vec![Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED),
+                 Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED)],
+            vec![Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED),
+                 Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED)],
+            vec![Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED),
+                 Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED)],
+            vec![Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED),
+                 Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED)],
+        ];
+
+        let mut pixels: HashMap<Point, Pixel> = HashMap::new();
+        for y in 0..shape.len() {
+            for x in 0..shape[y].len() {
+                let color = shape[y][x];
+                if color.is_some() {
+                    let location = Point::new(x as i32, y as i32);
+                    pixels.insert(location.clone(), Pixel::new(location, color.unwrap()));
+                }
+            }
+        }
+
+        // Shape::new(shape)
+        Shape::new(pixels, shape[0].len(), shape.len())
+    }
+
+    pub fn increment_coin_count(&mut self) {
+        self.coin_count += 1;
+    }
+
+    pub fn coin_count(&mut self) -> i32 {
+        self.coin_count
     }
 }
 
@@ -34,6 +81,7 @@ impl Default for Player {
     }
 }
 
+// Should Drawable be on GameObject?
 impl Drawable for Player {
     fn position(&self) -> &Point {
         &self.position
@@ -66,7 +114,6 @@ impl GameObject for Player {
     }
 
     fn tick(&mut self) {
-
         self.apply_movement();
     }
 }

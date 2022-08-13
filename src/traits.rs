@@ -7,7 +7,7 @@ use crate::structs::*;
 ///
 /// GameObject definition
 ///
-pub trait GameObject: Drawable {
+pub trait GameObject {
     fn game_object_type(&self) -> GameObjectType;
 
     fn tick(&mut self) {
@@ -19,48 +19,10 @@ pub trait GameObject: Drawable {
 ///
 /// Drawable definition
 ///
-pub trait Drawable {
+pub trait Drawable: GameObject {
     fn position(&self) -> &Point;
     fn set_position(&mut self, point: Point);
     fn shape(&self) -> &Shape;
-
-    // TODO: rename and implement memoization somehow
-    // fn get_active_pixels(&self) -> Vec<(Point, &Option<Color>)> {
-    fn get_active_pixels(&self) -> Vec<Pixel> {
-
-        let position: &Point = &self.position();
-        let x_origin = position.x;
-        let y_origin = position.y;
-
-        let shape: &Shape = &self.shape();
-
-        let mut result: Vec<Pixel> = Vec::new();
-
-        for y_ptr in 0..shape.height() {
-            for x_ptr in 0..shape.width() {
-                let pixel_color: &Option<Color> = shape.get_pixel(x_ptr, y_ptr);
-
-                if pixel_color.is_some() {
-                    let point = Point::new(
-                        x_origin + i32::try_from(x_ptr).unwrap(),
-                        y_origin + i32::try_from(y_ptr).unwrap(),
-                    );
-                    result.push(Pixel::new(point, pixel_color.unwrap()));
-                }
-            }
-        }
-
-        result
-    }
-
-    fn draw(&self, canvas: &mut WindowCanvas) {
-        let pixels: Vec<Pixel> = self.get_active_pixels();
-
-        pixels.iter().for_each(|pixel| {
-            canvas.set_draw_color(pixel.color);
-            canvas.draw_point(pixel.location).unwrap();
-        });
-    }
 }
 
 ///
@@ -68,17 +30,18 @@ pub trait Drawable {
 ///
 pub trait Collidable: Drawable {
     fn has_collided(&self, other: &dyn Collidable) -> bool {
-        let common_points: HashSet<Point> = self
-            .get_active_pixels()
-            .iter()
-            .map(|pixel| pixel.location)
-            .collect();
-
-        other
-            .get_active_pixels()
-            .iter()
-            .map(|p| p.location)
-            .any(|p| common_points.contains(&p))
+        // let common_points: HashSet<Point> = self
+        //     .get_active_pixels()
+        //     .iter()
+        //     .map(|pixel| pixel.location)
+        //     .collect();
+        //
+        // other
+        //     .get_active_pixels()
+        //     .iter()
+        //     .map(|p| p.location)
+        //     .any(|p| common_points.contains(&p))
+        true
     }
 }
 
@@ -91,6 +54,7 @@ pub trait Moveable: Drawable {
 
     fn apply_movement(&mut self) {
 
+        // println!("Player direction: {:#?}", self.direction());
         let new_position: Point;
         match &self.direction() {
             Direction::Up => {

@@ -13,10 +13,10 @@ static CENTER_Y: i32 = (WINDOW_HEIGHT / 2) as i32;
 ///
 /// Coin definition
 ///
-
 pub struct Coin {
     position: Point,
     shape: Shape,
+    id: i32
 }
 
 impl Coin {
@@ -24,7 +24,12 @@ impl Coin {
         Coin {
             position,
             shape: Shape::default(),
+            id: 0
         }
+    }
+
+    pub fn id(&self) -> i32 {
+        self.id
     }
 }
 
@@ -53,6 +58,6 @@ impl Collidable for Coin {}
 
 impl GameObject for Coin {
     fn game_object_type(&self) -> GameObjectType {
-        GameObjectType::Coin
+        GameObjectType::Coin(self.id())
     }
 }

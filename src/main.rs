@@ -12,6 +12,7 @@ use pacman::game_objects::*;
 use pacman::game_state::*;
 use pacman::traits::*;
 use pacman::structs::*;
+use pacman::player_input::*;
 
 static WINDOW_WIDTH: u32 = 800;
 static WINDOW_HEIGHT: u32 = 600;
@@ -35,9 +36,6 @@ pub fn main() {
     let mut canvas = window.into_canvas().build().unwrap();
     let mut event_pump = sdl_context.event_pump().unwrap();
 
-    let mut player = Player::default();
-    let coin = Coin::default();
-
     let mut game_state = GameState::init(WINDOW_WIDTH as usize, WINDOW_HEIGHT as usize);
 
     let fps = 60;
@@ -45,8 +43,13 @@ pub fn main() {
     'running: loop {
         let now = SystemTime::now();
 
-        // TODO: Test if event stack pushes more than once a frame
+        // Set background
+        canvas.set_draw_color(Color::BLACK);
+        canvas.clear();
+
         // Check for events
+        let mut player_input: Option<PlayerInput> = None;
+
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit { .. }
@@ -56,50 +59,25 @@ pub fn main() {
                 } => {
                     break 'running;
                 }
+                // Player controls
                 Event::KeyDown {
-                    keycode: Some(Keycode::I),
+                    keycode: Some(key),
                     ..
                 } => {
-                    player.change_direction(Direction::Up);
-                }
-                Event::KeyDown {
-                    keycode: Some(Keycode::J),
-                    ..
-                } => {
-                    player.change_direction(Direction::Left);
-                }
-                Event::KeyDown {
-                    keycode: Some(Keycode::K),
-                    ..
-                } => {
-                    player.change_direction(Direction::Down);
-                }
-                Event::KeyDown {
-                    keycode: Some(Keycode::L),
-                    ..
-                } => {
-                    player.change_direction(Direction::Right);
+                    match key {
+                        Keycode::W => player_input = Some(PlayerInput::KeyDown(Key::W)),
+                        Keycode::A => player_input = Some(PlayerInput::KeyDown(Key::A)),
+                        Keycode::S => player_input = Some(PlayerInput::KeyDown(Key::S)),
+                        Keycode::D => player_input = Some(PlayerInput::KeyDown(Key::D)),
+                        _ => {}
+                    }
                 }
                 _ => {}
             }
         }
 
-        // Set background
-        canvas.set_draw_color(Color::BLACK);
-        canvas.clear();
-
-        // The rest of the game loop goes here...
-        // player.draw(&mut canvas);
-
-        // if player.has_collided(&coin) {
-        //     println!("Player collected coin!");
-        //     break 'running;
-        // } else {
-        //     coin.draw(&mut canvas);
-        // }
-
         // player.apply_movement();
-        game_state.tick();
+        game_state.tick(player_input);
         game_state.render(&mut canvas);
 
         canvas.present();
@@ -107,8 +85,8 @@ pub fn main() {
         // Log how long the frame processing took
         let elapsed = now.elapsed().unwrap().as_nanos();
         let percent_time_to_process = (elapsed as f64 / frame_duration as f64) * 100 as f64;
-        println!("Percent of frame to process: {}%", percent_time_to_process);
-        println!("Elapsed time: {}", elapsed);
+        // println!("Percent of frame to process: {}%", percent_time_to_process);
+        // println!("Elapsed time: {}", elapsed);
         // let remaining_frame_duration =
         //     if elapsed > frame_duration as u128 { 0 } else { frame_duration - u32::try_from(elapsed).unwrap_or(0) };
         // ::std::thread::sleep(Duration::new(0, remaining_frame_duration));

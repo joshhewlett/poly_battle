@@ -1,7 +1,9 @@
 use std::collections::{HashMap, HashSet};
 use sdl2::pixels::Color;
 use sdl2::rect::Point;
+use crate::traits::GameObject;
 
+#[derive(Debug)]
 pub enum Direction {
     Up,
     Down,
@@ -59,46 +61,30 @@ pub struct Shape {
 
 // TODO: Should Shape implement Iterable?
 impl Shape {
-    // pub fn new(shape: Vec<Vec<Option<Color>>>) -> Self {
-    //
-    //     // let shape_pixels = HashSet::new();
-    //     //
-    //     // for y in 0..shape.len() {
-    //     //     for x in 0..shape[0].len() {
-    //     //
-    //     //         if shape[x][y] == Some(color) {
-    //     //             let pixel = Pixel::new(Point::new(x, y), color);
-    //     //         }
-    //     //     }
-    //     // }
-    //
-    //     Shape {
-    //         shape,
-    //         // shape_pixels: vec![None; shape.len()],
-    //     }
-    // }
-    pub fn new(shape: HashMap<Point, Pixel>) -> Self {
+
+    pub fn new(shape: HashMap<Point, Pixel>, width: usize, height: usize) -> Self {
 
         Self {
             shape,
-            // shape_pixels: vec![None; shape.len()],
+            width,
+            height
         }
     }
 
-    // fn shape_data(&self) -> &Vec<Vec<Option<Color>>> {
-    //     &self.shape
-    // }
+    pub fn shape_data(&self) -> &HashMap<Point, Pixel> {
+        &self.shape
+    }
 
     pub fn get_pixel(&self, x: usize, y: usize) -> Option<&Pixel> {
         self.shape.get(&Point::new(x as i32, y as i32))
     }
 
     pub fn width(&self) -> usize {
-        self.shape[0].len()
+        self.width
     }
 
     pub fn height(&self) -> usize {
-        self.shape.len()
+        self.height
     }
 }
 
@@ -136,14 +122,15 @@ impl Default for Shape {
         }
 
         // Shape::new(shape)
-        Shape::new(pixels);
+        Shape::new(pixels, shape[0].len(), shape.len())
     }
 }
 
 pub struct CollisionRule {}
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum GameObjectType {
     Player,
-    Coin,
-    Wall
+    Coin(i32),
+    Wall(i32)
 }
