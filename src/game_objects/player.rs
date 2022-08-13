@@ -18,6 +18,7 @@ pub struct Player {
     position: Point,
     shape: Shape,
     current_direction: Direction,
+    speed: i32,
     coin_count: i32,
 }
 
@@ -27,6 +28,7 @@ impl Player {
             position,
             shape: Player::get_shape(),
             current_direction: Direction::default(),
+            speed: 5,
             coin_count: 0,
         }
     }
@@ -104,6 +106,9 @@ impl Collidable for Player {}
 impl Moveable for Player {
     fn direction(&self) -> &Direction {
         &self.current_direction
+    }
+    fn speed(&self) -> i32 {
+        self.speed
     }
 
     fn change_direction(&mut self, new_direction: Direction) {

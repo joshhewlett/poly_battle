@@ -8,6 +8,7 @@ use sdl2::rect::Point;
 use sdl2::render::WindowCanvas;
 use std::collections::{HashMap, HashSet};
 use std::ops::Index;
+use rand::Rng;
 
 /// Game State definition
 ///
@@ -45,10 +46,10 @@ impl GameState {
         if event.is_some() {
             match event.unwrap() {
                 PlayerInput::KeyDown(key) => match key {
-                    Key::W => self.player.change_direction(Direction::Up),
-                    Key::A => self.player.change_direction(Direction::Left),
-                    Key::S => self.player.change_direction(Direction::Down),
-                    Key::D => self.player.change_direction(Direction::Right),
+                    Key::W | Key::I => self.player.change_direction(Direction::Up),
+                    Key::A | Key::J => self.player.change_direction(Direction::Left),
+                    Key::S | Key::K => self.player.change_direction(Direction::Down),
+                    Key::D | Key::L => self.player.change_direction(Direction::Right),
                 },
             }
             println!("Player direction: {:?}", self.player.direction());
@@ -62,10 +63,19 @@ impl GameState {
 
         // --- Physics
         // Check for collisions
-        self.check_for_collisions();
+        self.check_for_collisions_with_player_and_coins();
+
+        // Spawn coin if no other coin exists
+        if self.coins.is_empty() {
+            let mut rng = rand::thread_rng();
+            let x = rng.gen_range(0..self.map_width) as i32;
+            let y = rng.gen_range(0..self.map_height) as i32;
+
+            self.coins.push(Coin::new(Point::new(x, y)));
+        }
     }
 
-    fn check_for_collisions(&mut self) {
+    fn check_for_collisions_with_player_and_coins(&mut self) {
         // Did player collide with a coin?
         // Destroy coin
         let coin_ids: HashSet<i32> = self
@@ -75,13 +85,13 @@ impl GameState {
             .filter(|(key, point_vec)| {
                 point_vec.len() > 1
                     && point_vec.iter().any(|point| match point.0 {
-                        GameObjectType::Player => true,
-                        _ => false,
-                    })
+                    GameObjectType::Player => true,
+                    _ => false,
+                })
                     && point_vec.iter().any(|point| match point.0 {
-                        GameObjectType::Coin(_) => true,
-                        _ => false,
-                    })
+                    GameObjectType::Coin(_) => true,
+                    _ => false,
+                })
             })
             // Convert Map<Point, Vec<(GameObjectType, Pixel)> to Vec<Coin IDs>
             .flat_map(|(key, point_vec)| {

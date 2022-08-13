@@ -67,6 +67,10 @@ pub fn main() {
                     Keycode::A => player_input = Some(PlayerInput::KeyDown(Key::A)),
                     Keycode::S => player_input = Some(PlayerInput::KeyDown(Key::S)),
                     Keycode::D => player_input = Some(PlayerInput::KeyDown(Key::D)),
+                    Keycode::I => player_input = Some(PlayerInput::KeyDown(Key::I)),
+                    Keycode::J => player_input = Some(PlayerInput::KeyDown(Key::J)),
+                    Keycode::K => player_input = Some(PlayerInput::KeyDown(Key::K)),
+                    Keycode::L => player_input = Some(PlayerInput::KeyDown(Key::L)),
                     _ => {}
                 },
                 _ => {}

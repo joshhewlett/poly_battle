@@ -9,4 +9,8 @@ pub enum Key {
     A,
     S,
     D,
+    I,
+    J,
+    K,
+    L,
 }

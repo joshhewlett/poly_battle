@@ -51,22 +51,23 @@ pub trait Collidable: Drawable {
 pub trait Moveable: Drawable {
     fn direction(&self) -> &Direction;
     fn change_direction(&mut self, new_direction: Direction);
+    fn speed(&self) -> i32;
 
     fn apply_movement(&mut self) {
         // println!("Player direction: {:#?}", self.direction());
         let new_position: Point;
         match &self.direction() {
             Direction::Up => {
-                new_position = Point::new(self.position().x, self.position().y - 1);
+                new_position = Point::new(self.position().x, self.position().y - self.speed());
             }
             Direction::Down => {
-                new_position = Point::new(self.position().x, self.position().y + 1);
+                new_position = Point::new(self.position().x, self.position().y + self.speed());
             }
             Direction::Left => {
-                new_position = Point::new(self.position().x - 1, self.position().y);
+                new_position = Point::new(self.position().x - self.speed(), self.position().y);
             }
             Direction::Right => {
-                new_position = Point::new(self.position().x + 1, self.position().y);
+                new_position = Point::new(self.position().x + self.speed(), self.position().y);
             }
         }
 
