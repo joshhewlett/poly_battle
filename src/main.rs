@@ -10,9 +10,9 @@ use sdl2::render::WindowCanvas;
 
 use pacman::game_objects::*;
 use pacman::game_state::*;
-use pacman::traits::*;
-use pacman::structs::*;
 use pacman::player_input::*;
+use pacman::structs::*;
+use pacman::traits::*;
 
 static WINDOW_WIDTH: u32 = 800;
 static WINDOW_HEIGHT: u32 = 600;
@@ -61,17 +61,14 @@ pub fn main() {
                 }
                 // Player controls
                 Event::KeyDown {
-                    keycode: Some(key),
-                    ..
-                } => {
-                    match key {
-                        Keycode::W => player_input = Some(PlayerInput::KeyDown(Key::W)),
-                        Keycode::A => player_input = Some(PlayerInput::KeyDown(Key::A)),
-                        Keycode::S => player_input = Some(PlayerInput::KeyDown(Key::S)),
-                        Keycode::D => player_input = Some(PlayerInput::KeyDown(Key::D)),
-                        _ => {}
-                    }
-                }
+                    keycode: Some(key), ..
+                } => match key {
+                    Keycode::W => player_input = Some(PlayerInput::KeyDown(Key::W)),
+                    Keycode::A => player_input = Some(PlayerInput::KeyDown(Key::A)),
+                    Keycode::S => player_input = Some(PlayerInput::KeyDown(Key::S)),
+                    Keycode::D => player_input = Some(PlayerInput::KeyDown(Key::D)),
+                    _ => {}
+                },
                 _ => {}
             }
         }

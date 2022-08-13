@@ -1,7 +1,7 @@
-use std::collections::{HashMap, HashSet};
+use crate::traits::GameObject;
 use sdl2::pixels::Color;
 use sdl2::rect::Point;
-use crate::traits::GameObject;
+use std::collections::{HashMap, HashSet};
 
 #[derive(Debug)]
 pub enum Direction {
@@ -17,11 +17,10 @@ impl Default for Direction {
     }
 }
 
-
 ///
 /// Pixel definition
 ///
-#[derive(Debug, Clone, )]
+#[derive(Debug, Clone)]
 pub struct Pixel {
     pub location: Point,
     // TODO: Replace with custom implementation
@@ -61,13 +60,11 @@ pub struct Shape {
 
 // TODO: Should Shape implement Iterable?
 impl Shape {
-
     pub fn new(shape: HashMap<Point, Pixel>, width: usize, height: usize) -> Self {
-
         Self {
             shape,
             width,
-            height
+            height,
         }
     }
 
@@ -90,24 +87,25 @@ impl Shape {
 
 impl Default for Shape {
     fn default() -> Self {
-
+        let row = vec![
+            Some(Color::WHITE),
+            Some(Color::WHITE),
+            Some(Color::WHITE),
+            Some(Color::WHITE),
+            Some(Color::WHITE),
+            Some(Color::WHITE),
+            Some(Color::WHITE),
+            Some(Color::WHITE),
+        ];
         let shape: Vec<Vec<Option<Color>>> = vec![
-            vec![Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE),
-                 Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE)],
-            vec![Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE),
-                 Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE)],
-            vec![Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE),
-                 Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE)],
-            vec![Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE),
-                 Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE)],
-            vec![Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE),
-                 Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE)],
-            vec![Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE),
-                 Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE)],
-            vec![Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE),
-                 Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE)],
-            vec![Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE),
-                 Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE), Some(Color::WHITE)],
+            row.clone(),
+            row.clone(),
+            row.clone(),
+            row.clone(),
+            row.clone(),
+            row.clone(),
+            row.clone(),
+            row.clone(),
         ];
 
         let mut pixels: HashMap<Point, Pixel> = HashMap::new();
@@ -132,5 +130,5 @@ pub struct CollisionRule {}
 pub enum GameObjectType {
     Player,
     Coin(i32),
-    Wall(i32)
+    Wall(i32),
 }

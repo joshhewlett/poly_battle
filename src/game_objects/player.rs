@@ -1,8 +1,8 @@
-use std::collections::HashMap;
+use crate::structs::*;
+use crate::traits::*;
 use sdl2::pixels::Color;
 use sdl2::rect::Point;
-use crate::traits::*;
-use crate::structs::*;
+use std::collections::HashMap;
 
 // TODO: Remove this
 static WINDOW_WIDTH: u32 = 800;
@@ -32,23 +32,26 @@ impl Player {
     }
 
     fn get_shape() -> Shape {
+        let row = vec![
+            Some(Color::RED),
+            Some(Color::RED),
+            Some(Color::RED),
+            Some(Color::RED),
+            Some(Color::RED),
+            Some(Color::RED),
+            Some(Color::RED),
+            Some(Color::RED),
+        ];
+
         let shape: Vec<Vec<Option<Color>>> = vec![
-            vec![Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED),
-                 Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED)],
-            vec![Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED),
-                 Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED)],
-            vec![Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED),
-                 Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED)],
-            vec![Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED),
-                 Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED)],
-            vec![Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED),
-                 Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED)],
-            vec![Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED),
-                 Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED)],
-            vec![Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED),
-                 Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED)],
-            vec![Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED),
-                 Some(Color::RED), Some(Color::RED), Some(Color::RED), Some(Color::RED)],
+            row.clone(),
+            row.clone(),
+            row.clone(),
+            row.clone(),
+            row.clone(),
+            row.clone(),
+            row.clone(),
+            row.clone(),
         ];
 
         let mut pixels: HashMap<Point, Pixel> = HashMap::new();

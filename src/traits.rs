@@ -1,8 +1,8 @@
-use std::collections::HashSet;
+use crate::structs::*;
 use sdl2::pixels::Color;
 use sdl2::rect::Point;
 use sdl2::render::WindowCanvas;
-use crate::structs::*;
+use std::collections::HashSet;
 
 ///
 /// GameObject definition
@@ -53,7 +53,6 @@ pub trait Moveable: Drawable {
     fn change_direction(&mut self, new_direction: Direction);
 
     fn apply_movement(&mut self) {
-
         // println!("Player direction: {:#?}", self.direction());
         let new_position: Point;
         match &self.direction() {
