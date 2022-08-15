@@ -25,6 +25,7 @@ pub struct GameState {
     pub map: HashMap<Point, Vec<(GameObjectType, Pixel)>>,
     player: Player,
     coins: Vec<Coin>,
+    boundaries: Vec<Boundary>,
 }
 
 impl GameState {
@@ -38,6 +39,7 @@ impl GameState {
             map,
             player: Player::default(), // TODO: Create new non-default player with specific position
             coins: vec![Coin::default()],
+            boundaries: vec![Boundary::new()],
         }
     }
 
@@ -132,7 +134,7 @@ impl GameState {
 
         // Last element in the drawables map will be at the forefront. Technically, the player
         // should be added last, but it's not an issue right now
-        let mut drawables: Vec<&dyn Drawable> = vec![&self.player];
+        let mut drawables: Vec<&dyn Drawable> = vec![&self.boundaries[0], &self.player];
         self.coins.iter().for_each(|c| drawables.push(c));
 
         for drawable in drawables {

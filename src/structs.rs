@@ -97,7 +97,7 @@ impl Default for Shape {
             Some(Color::WHITE),
             Some(Color::WHITE),
         ];
-        
+
         let mut shape: Vec<Vec<Option<Color>>> = Vec::new();
         for _ in 0..8 {
             shape.push(row.clone());
