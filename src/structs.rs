@@ -97,16 +97,12 @@ impl Default for Shape {
             Some(Color::WHITE),
             Some(Color::WHITE),
         ];
-        let shape: Vec<Vec<Option<Color>>> = vec![
-            row.clone(),
-            row.clone(),
-            row.clone(),
-            row.clone(),
-            row.clone(),
-            row.clone(),
-            row.clone(),
-            row.clone(),
-        ];
+        
+        let mut shape: Vec<Vec<Option<Color>>> = Vec::new();
+        for _ in 0..8 {
+            shape.push(row.clone());
+        }
+
 
         let mut pixels: HashMap<Point, Pixel> = HashMap::new();
         for y in 0..shape.len() {
