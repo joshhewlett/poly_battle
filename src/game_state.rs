@@ -10,6 +10,7 @@ use std::collections::{HashMap, HashSet};
 use std::ops::Index;
 use std::time::SystemTime;
 use rand::Rng;
+use sdl2::libc::iconv;
 
 /// Game State definition
 ///
@@ -23,10 +24,10 @@ use rand::Rng;
 pub struct GameState {
     pub map_width: usize,
     pub map_height: usize,
+    pub boundary_map: HashMap<Point, Vec<(GameObjectType, Pixel)>>,
     pub map: HashMap<Point, Vec<(GameObjectType, Pixel)>>,
     player: Player,
     coins: Vec<Coin>,
-    boundaries: Vec<Boundary>,
 }
 
 impl GameState {
@@ -34,13 +35,17 @@ impl GameState {
         // Init map state
         let mut map = HashMap::new();
 
+        let boundary = Boundary::new();
+        let boundaries: Vec<&dyn Drawable> = vec![&boundary];
+        let boundary_map = GameState::convert_drawables_to_pixel_map(&boundaries);
+
         Self {
             map_width,
             map_height,
+            boundary_map,
             map,
             player: Player::default(), // TODO: Create new non-default player with specific position
             coins: vec![Coin::default()],
-            boundaries: vec![Boundary::new()],
         }
     }
 
@@ -62,7 +67,7 @@ impl GameState {
         self.player.tick();
 
         // Update game state
-        self.update_map();
+        self.update_game_state();
 
         // --- Physics
         // Check for collisions
@@ -130,17 +135,20 @@ impl GameState {
         println!("Player coin count: {}", self.player.coin_count());
     }
 
-    fn update_map(&mut self) {
+    fn update_game_state(&mut self) {
         self.clear_map();
 
         // Last element in the drawables map will be at the forefront. Technically, the player
         // should be added last, but it's not an issue right now
         // let mut drawables: Vec<&dyn Drawable> = vec![&self.boundaries[0], &self.player];
-        let mut drawables: Vec<&dyn Drawable> = vec![&self.boundaries[0], &self.player];
+        let mut drawables: Vec<&dyn Drawable> = vec![&self.player];
         self.coins.iter().for_each(|c| drawables.push(c));
 
-        let now = SystemTime::now();
+        self.map = GameState::convert_drawables_to_pixel_map(&drawables);
+    }
 
+    fn convert_drawables_to_pixel_map(drawables: &Vec<&dyn Drawable>) -> HashMap<Point, Vec<(GameObjectType, Pixel)>> {
+        let mut map: HashMap<Point, Vec<(GameObjectType, Pixel)>> = HashMap::new();
         for drawable in drawables {
             let entity_position: &Point = drawable.position();
             let entity_shape: &Shape = drawable.shape();
@@ -155,36 +163,32 @@ impl GameState {
                         entity_position.y + pixel_location.y,
                     );
 
-                    if !self.map.contains_key(&absolute_pos) {
-                        self.map.insert(absolute_pos.clone(), Vec::new());
+                    if !map.contains_key(&absolute_pos) {
+                        map.insert(absolute_pos.clone(), Vec::new());
                     }
 
-                    self.map.get_mut(&absolute_pos).unwrap().push((
+                    map.get_mut(&absolute_pos).unwrap().push((
                         entity_type.clone(),
                         Pixel::new(absolute_pos.clone(), pixel.color.clone()),
                     ));
                 })
         }
 
-        let elapsed_time = now.elapsed().unwrap().as_millis();
-        println!("Elapsed time for updating HashMap: {}", elapsed_time);
-    }
-
-    fn drawables(&self) -> Vec<&dyn Drawable> {
-        let mut drawables: Vec<&dyn Drawable> = vec![&self.player];
-
-        self.coins.iter().for_each(|coin| drawables.push(coin));
-
-        drawables
+        map
     }
 
     pub fn render(&self, canvas: &mut WindowCanvas) {
-        self.map.iter().for_each(|(point, pixels)| {
-            pixels.iter().for_each(|pixel| {
-                canvas.set_draw_color(pixel.1.color);
-                canvas.draw_point(pixel.1.location).unwrap();
-            })
-        });
+        fn render_map(map: &HashMap<Point, Vec<(GameObjectType, Pixel)>>, canvas: &mut WindowCanvas) {
+            map.iter().for_each(|(point, pixels)| {
+                pixels.iter().for_each(|pixel| {
+                    canvas.set_draw_color(pixel.1.color);
+                    canvas.draw_point(pixel.1.location).unwrap();
+                })
+            });
+        }
+
+        render_map(&self.boundary_map, canvas);
+        render_map(&self.map, canvas);
     }
 
     fn clear_map(&mut self) {

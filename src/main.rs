@@ -85,9 +85,10 @@ pub fn main() {
 
         // Log how long the frame processing took
         let elapsed = now.elapsed().unwrap().as_nanos();
-        // let percent_time_to_process = (elapsed as f64 / frame_duration as f64) * 100 as f64;
-        // println!("Percent of frame to process: {}%", percent_time_to_process);
-        // println!("Elapsed time: {}", elapsed);
+
+        let percent_time_to_process = (elapsed as f64 / frame_duration as f64) * 100 as f64;
+        println!("Percent of frame to process: {}%", percent_time_to_process);
+        println!("Elapsed time: {}", elapsed);
 
         let remaining_frame_duration =
             if elapsed > frame_duration as u128 { 0 } else { frame_duration - u32::try_from(elapsed).unwrap_or(0) };
