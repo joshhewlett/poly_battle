@@ -33,13 +33,14 @@ pub fn main() {
         .build()
         .unwrap();
 
-    let mut canvas = window.into_canvas().build().unwrap();
+    let mut canvas = window.into_canvas().present_vsync().build().unwrap();
     let mut event_pump = sdl_context.event_pump().unwrap();
 
     let mut game_state = GameState::init(WINDOW_WIDTH as usize, WINDOW_HEIGHT as usize);
 
     let fps = 60;
     let frame_duration = 1_000_000_000u32 / fps;
+
     'running: loop {
         let now = SystemTime::now();
 
@@ -71,13 +72,17 @@ pub fn main() {
                     Keycode::J => player_input = Some(PlayerInput::KeyDown(Key::J)),
                     Keycode::K => player_input = Some(PlayerInput::KeyDown(Key::K)),
                     Keycode::L => player_input = Some(PlayerInput::KeyDown(Key::L)),
+                    Keycode::Num1 => player_input = Some(PlayerInput::KeyDown(Key::Num1)),
+                    Keycode::Num2 => player_input = Some(PlayerInput::KeyDown(Key::Num2)),
+                    Keycode::Num3 => player_input = Some(PlayerInput::KeyDown(Key::Num3)),
+                    Keycode::Num4 => player_input = Some(PlayerInput::KeyDown(Key::Num4)),
+                    Keycode::Num5 => player_input = Some(PlayerInput::KeyDown(Key::Num5)),
                     _ => {}
                 },
                 _ => {}
             }
         }
 
-        // player.apply_movement();
         game_state.tick(player_input);
         game_state.render(&mut canvas);
 

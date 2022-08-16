@@ -72,6 +72,10 @@ impl Player {
     pub fn coin_count(&mut self) -> i32 {
         self.coin_count
     }
+
+    pub fn change_speed(&mut self, speed: i32) {
+        self.speed = speed;
+    }
 }
 
 impl Default for Player {

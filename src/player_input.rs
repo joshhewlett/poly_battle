@@ -5,6 +5,11 @@ pub enum PlayerInput {
 
 #[derive(Debug)]
 pub enum Key {
+    Num1,
+    Num2,
+    Num3,
+    Num4,
+    Num5,
     W,
     A,
     S,

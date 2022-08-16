@@ -59,6 +59,11 @@ impl GameState {
                     Key::A | Key::J => self.player.change_direction(Direction::Left),
                     Key::S | Key::K => self.player.change_direction(Direction::Down),
                     Key::D | Key::L => self.player.change_direction(Direction::Right),
+                    Key::Num1 => self.player.change_speed(1),
+                    Key::Num2 => self.player.change_speed(2),
+                    Key::Num3 => self.player.change_speed(3),
+                    Key::Num4 => self.player.change_speed(4),
+                    Key::Num5 => self.player.change_speed(5),
                 },
             }
             println!("Player direction: {:?}", self.player.direction());
