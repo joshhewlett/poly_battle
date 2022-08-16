@@ -11,6 +11,9 @@ static WINDOW_HEIGHT: u32 = 600;
 static CENTER_X: i32 = (WINDOW_WIDTH / 2) as i32;
 static CENTER_Y: i32 = (WINDOW_HEIGHT / 2) as i32;
 
+static BOUNDARY_WIDTH: usize = 5;
+static BOUNDARY_COLOR: Color = Color::WHITE;
+
 pub struct Boundary {
     position: Point,
     shape: Shape,
@@ -25,8 +28,6 @@ impl Boundary {
     }
 
     fn get_boundary_shape() -> Shape {
-        let width = 5;
-        let color = Color::WHITE;
 
         // Base 1d array
         let mut base_shape_data = vec![None; WINDOW_HEIGHT as usize * WINDOW_WIDTH as usize];
@@ -40,13 +41,31 @@ impl Boundary {
         // Final 2d array `&mut [&mut [_]]`
         let shape_data_grid = grid_base.as_mut_slice();
 
-        // Fill top boundary
+        // Fill top and bottom boundary
         for x in 0..(WINDOW_WIDTH as usize) {
-            for y in 0..width {
-                shape_data_grid[y][x] = Some(color.clone());
+            for y in 0..BOUNDARY_WIDTH {
+                // Top boundary
+                shape_data_grid[y][x] = Some(BOUNDARY_COLOR.clone());
+
+                // Bottom boundary
+                shape_data_grid[(y + WINDOW_HEIGHT as usize) - BOUNDARY_WIDTH][x] =
+                    Some(BOUNDARY_COLOR.clone());
             }
         }
 
+        // Fill left and right boundary
+        for y in 0..(WINDOW_HEIGHT as usize) {
+            for x in 0..BOUNDARY_WIDTH {
+                // Left boundary
+                shape_data_grid[y][x] = Some(BOUNDARY_COLOR.clone());
+
+                // Right boundary
+                shape_data_grid[y][(x + WINDOW_WIDTH as usize) - 5] =
+                    Some(BOUNDARY_COLOR.clone());
+            }
+        }
+
+        // Convert 2D Vector to HashMap
         let mut pixels: HashMap<Point, Pixel> = HashMap::new();
         for y in 0..shape_data_grid.len() {
             for x in 0..shape_data_grid[y].len() {

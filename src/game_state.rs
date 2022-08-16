@@ -8,6 +8,7 @@ use sdl2::rect::Point;
 use sdl2::render::WindowCanvas;
 use std::collections::{HashMap, HashSet};
 use std::ops::Index;
+use std::time::SystemTime;
 use rand::Rng;
 
 /// Game State definition
@@ -134,8 +135,11 @@ impl GameState {
 
         // Last element in the drawables map will be at the forefront. Technically, the player
         // should be added last, but it's not an issue right now
+        // let mut drawables: Vec<&dyn Drawable> = vec![&self.boundaries[0], &self.player];
         let mut drawables: Vec<&dyn Drawable> = vec![&self.boundaries[0], &self.player];
         self.coins.iter().for_each(|c| drawables.push(c));
+
+        let now = SystemTime::now();
 
         for drawable in drawables {
             let entity_position: &Point = drawable.position();
@@ -161,6 +165,9 @@ impl GameState {
                     ));
                 })
         }
+
+        let elapsed_time = now.elapsed().unwrap().as_millis();
+        println!("Elapsed time for updating HashMap: {}", elapsed_time);
     }
 
     fn drawables(&self) -> Vec<&dyn Drawable> {
