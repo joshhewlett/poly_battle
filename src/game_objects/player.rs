@@ -82,8 +82,8 @@ impl Default for Player {
 
 // Should Drawable be on GameObject?
 impl Drawable for Player {
-    fn position(&self) -> &Point {
-        &self.position
+    fn position(&self) -> Point {
+        self.position.clone()
     }
 
     fn set_position(&mut self, new_position: Point) {

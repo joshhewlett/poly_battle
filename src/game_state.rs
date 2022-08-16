@@ -7,6 +7,7 @@ use sdl2::keyboard::Keycode;
 use sdl2::rect::Point;
 use sdl2::render::WindowCanvas;
 use std::collections::{HashMap, HashSet};
+use std::collections::hash_map::Keys;
 use std::ops::Index;
 use std::time::SystemTime;
 use rand::Rng;
@@ -64,7 +65,14 @@ impl GameState {
         }
 
         // Tick frame
-        self.player.tick();
+
+        // Apply player movement
+        // If player collides with boundary/wall, return to original position
+        let player_pos = self.player.position();
+        self.player.apply_movement();
+        if self.has_collided_with_boundary(&self.player) {
+            self.player.set_position(player_pos);
+        }
 
         // Update game state
         self.update_game_state();
@@ -81,6 +89,16 @@ impl GameState {
 
             self.coins.push(Coin::new(Point::new(x, y)));
         }
+    }
+
+    fn has_collided_with_boundary(&self, drawable: &dyn Drawable) -> bool{
+
+        let drawables = vec![drawable];
+        let drawable_pixels: HashMap<Point, Vec<(GameObjectType, Pixel)>> =
+            GameState::convert_drawables_to_pixel_map(&drawables);
+
+        self.boundary_map.iter()
+            .any(|(k, _)| drawable_pixels.contains_key(k))
     }
 
     fn check_for_collisions_with_player_and_coins(&mut self) {
@@ -150,7 +168,7 @@ impl GameState {
     fn convert_drawables_to_pixel_map(drawables: &Vec<&dyn Drawable>) -> HashMap<Point, Vec<(GameObjectType, Pixel)>> {
         let mut map: HashMap<Point, Vec<(GameObjectType, Pixel)>> = HashMap::new();
         for drawable in drawables {
-            let entity_position: &Point = drawable.position();
+            let entity_position: Point = drawable.position();
             let entity_shape: &Shape = drawable.shape();
             let entity_type: GameObjectType = drawable.game_object_type();
 

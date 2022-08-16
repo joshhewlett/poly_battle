@@ -40,8 +40,8 @@ impl Default for Coin {
 
 // TODO: This is probably a good use of #derive!
 impl Drawable for Coin {
-    fn position(&self) -> &Point {
-        &self.position
+    fn position(&self) -> Point {
+        self.position.clone()
     }
 
     fn set_position(&mut self, new_position: Point) {

@@ -20,7 +20,7 @@ pub trait GameObject {
 /// Drawable definition
 ///
 pub trait Drawable: GameObject {
-    fn position(&self) -> &Point;
+    fn position(&self) -> Point;
     fn set_position(&mut self, point: Point);
     fn shape(&self) -> &Shape;
 }

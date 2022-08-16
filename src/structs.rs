@@ -49,6 +49,7 @@ impl Default for Pixel {
 ///
 /// Shape definition
 ///
+// TODO: Shape should be Drawable
 pub struct Shape {
     // TODO: Replace with Pixel
     // shape: Vec<Vec<Option<Color>>>,
