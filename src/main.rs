@@ -23,7 +23,19 @@ static CENTER_Y: i32 = (WINDOW_HEIGHT / 2) as i32;
 ///
 /// ===== Main Program ======
 ///
+
 pub fn main() {
+
+    playground();
+    start();
+}
+
+pub fn playground() {
+
+    ()
+}
+
+pub fn start() {
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
 
@@ -36,7 +48,7 @@ pub fn main() {
     let mut canvas = window.into_canvas().present_vsync().build().unwrap();
     let mut event_pump = sdl_context.event_pump().unwrap();
 
-    let mut game_state = GameState::init(WINDOW_WIDTH as usize, WINDOW_HEIGHT as usize);
+    let mut game_state = GameState::init(WINDOW_WIDTH, WINDOW_HEIGHT);
 
     let fps = 60;
     let frame_duration = 1_000_000_000u32 / fps;

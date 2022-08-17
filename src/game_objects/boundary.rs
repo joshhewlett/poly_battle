@@ -1,15 +1,7 @@
 use std::collections::HashMap;
 use sdl2::pixels::Color;
-use sdl2::rect::Point;
-use crate::structs::{GameObjectType, Pixel, Shape};
+use crate::structs::*;
 use crate::traits::{Drawable, GameObject};
-
-// TODO: Remove this
-static WINDOW_WIDTH: u32 = 800;
-static WINDOW_HEIGHT: u32 = 600;
-
-static CENTER_X: i32 = (WINDOW_WIDTH / 2) as i32;
-static CENTER_Y: i32 = (WINDOW_HEIGHT / 2) as i32;
 
 static BOUNDARY_WIDTH: usize = 5;
 static BOUNDARY_COLOR: Color = Color::WHITE;
@@ -20,47 +12,47 @@ pub struct Boundary {
 }
 
 impl Boundary {
-    pub fn new() -> Self {
+    pub fn new(map_width: u32, map_height: u32) -> Self {
         Self {
             position: Point::new(0, 0),
-            shape: Boundary::get_boundary_shape(),
+            shape: Boundary::get_boundary_shape(map_width, map_height),
         }
     }
 
-    fn get_boundary_shape() -> Shape {
+    fn get_boundary_shape(map_width: u32, map_height: u32) -> Shape {
 
         // Base 1d array
-        let mut base_shape_data = vec![None; WINDOW_HEIGHT as usize * WINDOW_WIDTH as usize];
+        let mut base_shape_data = vec![None; map_height as usize * map_width as usize];
 
         // Vector of 'width' elements slices
         let mut grid_base: Vec<_> = base_shape_data
             .as_mut_slice()
-            .chunks_mut(WINDOW_WIDTH as usize)
+            .chunks_mut(map_width as usize)
             .collect();
 
         // Final 2d array `&mut [&mut [_]]`
         let shape_data_grid = grid_base.as_mut_slice();
 
         // Fill top and bottom boundary
-        for x in 0..(WINDOW_WIDTH as usize) {
+        for x in 0..(map_width as usize) {
             for y in 0..BOUNDARY_WIDTH {
                 // Top boundary
                 shape_data_grid[y][x] = Some(BOUNDARY_COLOR.clone());
 
                 // Bottom boundary
-                shape_data_grid[(y + WINDOW_HEIGHT as usize) - BOUNDARY_WIDTH][x] =
+                shape_data_grid[(y + map_height as usize) - BOUNDARY_WIDTH][x] =
                     Some(BOUNDARY_COLOR.clone());
             }
         }
 
         // Fill left and right boundary
-        for y in 0..(WINDOW_HEIGHT as usize) {
+        for y in 0..(map_height as usize) {
             for x in 0..BOUNDARY_WIDTH {
                 // Left boundary
                 shape_data_grid[y][x] = Some(BOUNDARY_COLOR.clone());
 
                 // Right boundary
-                shape_data_grid[y][(x + WINDOW_WIDTH as usize) - 5] =
+                shape_data_grid[y][(x + map_width as usize) - 5] =
                     Some(BOUNDARY_COLOR.clone());
             }
         }
@@ -71,7 +63,7 @@ impl Boundary {
             for x in 0..shape_data_grid[y].len() {
                 let color = shape_data_grid[y][x];
                 if color.is_some() {
-                    let location = Point::new(x as i32, y as i32);
+                    let location = Point::new(x as u32, y as u32);
                     pixels.insert(location.clone(), Pixel::new(location, color.unwrap()));
                 }
             }

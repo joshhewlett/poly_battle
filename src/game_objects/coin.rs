@@ -1,13 +1,5 @@
 use crate::structs::*;
 use crate::traits::*;
-use sdl2::rect::Point;
-
-// TODO: Remove this
-static WINDOW_WIDTH: u32 = 800;
-static WINDOW_HEIGHT: u32 = 600;
-
-static CENTER_X: i32 = (WINDOW_WIDTH / 2) as i32;
-static CENTER_Y: i32 = (WINDOW_HEIGHT / 2) as i32;
 
 ///
 /// Coin definition
@@ -34,7 +26,7 @@ impl Coin {
 
 impl Default for Coin {
     fn default() -> Self {
-        Coin::new(Point::new(CENTER_X + 50, CENTER_Y + 50))
+        Coin::new(Point::default())
     }
 }
 

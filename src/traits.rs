@@ -1,6 +1,5 @@
 use crate::structs::*;
 use sdl2::pixels::Color;
-use sdl2::rect::Point;
 use sdl2::render::WindowCanvas;
 use std::collections::HashSet;
 
@@ -51,7 +50,7 @@ pub trait Collidable: Drawable {
 pub trait Moveable: Drawable {
     fn direction(&self) -> &Direction;
     fn change_direction(&mut self, new_direction: Direction);
-    fn speed(&self) -> i32;
+    fn speed(&self) -> u32;
 
     fn apply_movement(&mut self) {
         // println!("Player direction: {:#?}", self.direction());

@@ -4,7 +4,6 @@ use crate::structs::*;
 use crate::traits::*;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use sdl2::rect::Point;
 use sdl2::render::WindowCanvas;
 use std::collections::{HashMap, HashSet};
 use std::collections::hash_map::Keys;
@@ -12,6 +11,24 @@ use std::ops::Index;
 use std::time::SystemTime;
 use rand::Rng;
 use sdl2::libc::iconv;
+
+struct GameMapDimensions {
+    pub width: u32,
+    pub height: u32,
+    pub center: Point,
+    pub origin: Point,
+}
+
+impl GameMapDimensions {
+    pub fn new(width: u32, height: u32) -> Self {
+        Self {
+            width,
+            height,
+            center: Point::new(width / 2, height / 2),
+            origin: Point::new(0, 0),
+        }
+    }
+}
 
 /// Game State definition
 ///
@@ -23,29 +40,29 @@ use sdl2::libc::iconv;
 /// collision_rules: Vec<CollisionRule>
 ///
 pub struct GameState {
-    pub map_width: usize,
-    pub map_height: usize,
-    pub boundary_map: HashMap<Point, Vec<(GameObjectType, Pixel)>>,
-    pub map: HashMap<Point, Vec<(GameObjectType, Pixel)>>,
+    map_dimensions: GameMapDimensions,
+    boundary_map: HashMap<Point, Vec<(GameObjectType, Pixel)>>,
+    map: HashMap<Point, Vec<(GameObjectType, Pixel)>>,
     player: Player,
     coins: Vec<Coin>,
 }
 
 impl GameState {
-    pub fn init(map_width: usize, map_height: usize) -> Self {
-        // Init map state
-        let mut map = HashMap::new();
+    pub fn init(map_width: u32, map_height: u32) -> Self {
+        // Create map dimensions
+        let map_dimensions = GameMapDimensions::new(map_width, map_height);
+        let center_point = map_dimensions.center.clone();
 
-        let boundary = Boundary::new();
+        // Create boundaries
+        let boundary = Boundary::new(map_dimensions.width, map_dimensions.height);
         let boundaries: Vec<&dyn Drawable> = vec![&boundary];
         let boundary_map = GameState::convert_drawables_to_pixel_map(&boundaries);
 
         Self {
-            map_width,
-            map_height,
+            map_dimensions,
             boundary_map,
-            map,
-            player: Player::default(), // TODO: Create new non-default player with specific position
+            map: HashMap::new(),
+            player: Player::new(center_point),
             coins: vec![Coin::default()],
         }
     }
@@ -89,15 +106,14 @@ impl GameState {
         // Spawn coin if no other coin exists
         if self.coins.is_empty() {
             let mut rng = rand::thread_rng();
-            let x = rng.gen_range(0..self.map_width) as i32;
-            let y = rng.gen_range(0..self.map_height) as i32;
+            let x = rng.gen_range(0..self.map_dimensions.width) as u32;
+            let y = rng.gen_range(0..self.map_dimensions.height) as u32;
 
             self.coins.push(Coin::new(Point::new(x, y)));
         }
     }
 
-    fn has_collided_with_boundary(&self, drawable: &dyn Drawable) -> bool{
-
+    fn has_collided_with_boundary(&self, drawable: &dyn Drawable) -> bool {
         let drawables = vec![drawable];
         let drawable_pixels: HashMap<Point, Vec<(GameObjectType, Pixel)>> =
             GameState::convert_drawables_to_pixel_map(&drawables);
@@ -205,7 +221,9 @@ impl GameState {
             map.iter().for_each(|(point, pixels)| {
                 pixels.iter().for_each(|pixel| {
                     canvas.set_draw_color(pixel.1.color);
-                    canvas.draw_point(pixel.1.location).unwrap();
+
+                    let canvas_point = sdl2::rect::Point::new(pixel.1.location.x as i32, pixel.1.location.y as i32);
+                    canvas.draw_point(canvas_point).unwrap();
                 })
             });
         }

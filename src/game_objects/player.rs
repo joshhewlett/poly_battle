@@ -1,15 +1,7 @@
 use crate::structs::*;
 use crate::traits::*;
 use sdl2::pixels::Color;
-use sdl2::rect::Point;
 use std::collections::HashMap;
-
-// TODO: Remove this
-static WINDOW_WIDTH: u32 = 800;
-static WINDOW_HEIGHT: u32 = 600;
-
-static CENTER_X: i32 = (WINDOW_WIDTH / 2) as i32;
-static CENTER_Y: i32 = (WINDOW_HEIGHT / 2) as i32;
 
 ///
 /// Player definition
@@ -18,7 +10,7 @@ pub struct Player {
     position: Point,
     shape: Shape,
     current_direction: Direction,
-    speed: i32,
+    speed: u32,
     coin_count: i32,
 }
 
@@ -50,12 +42,16 @@ impl Player {
             shape.push(row.clone());
         }
 
+        assert!(shape.len() < u32::MAX as usize, "Shape height larger than expected");
+        assert!(shape[0].len() < u32::MAX as usize, "Shape width larger than expected");
+
         let mut pixels: HashMap<Point, Pixel> = HashMap::new();
         for y in 0..shape.len() {
             for x in 0..shape[y].len() {
+
                 let color = shape[y][x];
                 if color.is_some() {
-                    let location = Point::new(x as i32, y as i32);
+                    let location = Point::new(x as u32, y as u32);
                     pixels.insert(location.clone(), Pixel::new(location, color.unwrap()));
                 }
             }
@@ -73,14 +69,14 @@ impl Player {
         self.coin_count
     }
 
-    pub fn change_speed(&mut self, speed: i32) {
+    pub fn change_speed(&mut self, speed: u32) {
         self.speed = speed;
     }
 }
 
 impl Default for Player {
     fn default() -> Self {
-        Player::new(Point::new(CENTER_X, CENTER_Y))
+        Player::new(Point::default())
     }
 }
 
@@ -105,7 +101,7 @@ impl Moveable for Player {
     fn direction(&self) -> &Direction {
         &self.current_direction
     }
-    fn speed(&self) -> i32 {
+    fn speed(&self) -> u32 {
         self.speed
     }
 

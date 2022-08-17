@@ -1,8 +1,32 @@
 use crate::traits::GameObject;
 use sdl2::pixels::Color;
-use sdl2::rect::Point;
 use std::collections::{HashMap, HashSet};
 
+///
+/// Point definition
+///
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub struct Point {
+    pub x: u32,
+    pub y: u32
+}
+
+impl Point {
+
+    pub fn new(x: u32, y: u32) -> Point {
+        Self { x, y }
+    }
+}
+
+impl Default for Point {
+    fn default() -> Self {
+        Point::new(0, 0)
+    }
+}
+
+///
+/// Direction definition
+///
 #[derive(Debug)]
 pub enum Direction {
     Up,
@@ -73,8 +97,8 @@ impl Shape {
         &self.shape
     }
 
-    pub fn get_pixel(&self, x: usize, y: usize) -> Option<&Pixel> {
-        self.shape.get(&Point::new(x as i32, y as i32))
+    pub fn get_pixel(&self, x: u32, y: u32) -> Option<&Pixel> {
+        self.shape.get(&Point::new(x, y))
     }
 
     pub fn width(&self) -> usize {
@@ -104,13 +128,16 @@ impl Default for Shape {
             shape.push(row.clone());
         }
 
-
         let mut pixels: HashMap<Point, Pixel> = HashMap::new();
+
+        assert!(shape.len() < u32::MAX as usize, "Shape height larger than expected");
+        assert!(shape[0].len() < u32::MAX as usize, "Shape width larger than expected");
         for y in 0..shape.len() {
             for x in 0..shape[y].len() {
+
                 let color = shape[y][x];
                 if color.is_some() {
-                    let location = Point::new(x as i32, y as i32);
+                    let location = Point::new(x as u32, y as u32);
                     pixels.insert(location.clone(), Pixel::new(location, color.unwrap()));
                 }
             }
