@@ -15,14 +15,11 @@ static WINDOW_HEIGHT: u32 = 600;
 ///
 
 pub fn main() {
-
     playground();
     start();
 }
 
-pub fn playground() {
-
-}
+pub fn playground() {}
 
 pub fn start() {
     let sdl_context = sdl2::init().unwrap();
@@ -96,8 +93,11 @@ pub fn start() {
         println!("Percent of frame to process: {}%", percent_time_to_process);
         println!("Elapsed time: {}", elapsed);
 
-        let remaining_frame_duration =
-            if elapsed > frame_duration as u128 { 0 } else { frame_duration - u32::try_from(elapsed).unwrap_or(0) };
+        let remaining_frame_duration = if elapsed > frame_duration as u128 {
+            0
+        } else {
+            frame_duration - u32::try_from(elapsed).unwrap_or(0)
+        };
         ::std::thread::sleep(Duration::new(0, remaining_frame_duration));
         // ::std::thread::sleep(Duration::new(0, frame_duration));
     }

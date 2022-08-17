@@ -2,9 +2,9 @@ use crate::game_objects::*;
 use crate::player_input::{Key, PlayerInput};
 use crate::structs::*;
 use crate::traits::*;
+use rand::Rng;
 use sdl2::render::WindowCanvas;
 use std::collections::{HashMap, HashSet};
-use rand::Rng;
 
 struct GameMapDimensions {
     pub width: u32,
@@ -112,7 +112,8 @@ impl GameState {
         let drawable_pixels: HashMap<Point, Vec<(GameObjectType, Pixel)>> =
             GameState::convert_drawables_to_pixel_map(&drawables);
 
-        self.boundary_map.iter()
+        self.boundary_map
+            .iter()
             .any(|(k, _)| drawable_pixels.contains_key(k))
     }
 
@@ -126,13 +127,13 @@ impl GameState {
             .filter(|(_key, point_vec)| {
                 point_vec.len() > 1
                     && point_vec.iter().any(|point| match point.0 {
-                    GameObjectType::Player => true,
-                    _ => false,
-                })
+                        GameObjectType::Player => true,
+                        _ => false,
+                    })
                     && point_vec.iter().any(|point| match point.0 {
-                    GameObjectType::Coin(_) => true,
-                    _ => false,
-                })
+                        GameObjectType::Coin(_) => true,
+                        _ => false,
+                    })
             })
             // Convert Map<Point, Vec<(GameObjectType, Pixel)> to Vec<Coin IDs>
             .flat_map(|(_key, point_vec)| {
@@ -180,7 +181,9 @@ impl GameState {
         self.map = GameState::convert_drawables_to_pixel_map(&drawables);
     }
 
-    fn convert_drawables_to_pixel_map(drawables: &Vec<&dyn Drawable>) -> HashMap<Point, Vec<(GameObjectType, Pixel)>> {
+    fn convert_drawables_to_pixel_map(
+        drawables: &Vec<&dyn Drawable>,
+    ) -> HashMap<Point, Vec<(GameObjectType, Pixel)>> {
         let mut map: HashMap<Point, Vec<(GameObjectType, Pixel)>> = HashMap::new();
         for drawable in drawables {
             let entity_position: Point = drawable.position();
@@ -211,12 +214,18 @@ impl GameState {
     }
 
     pub fn render(&self, canvas: &mut WindowCanvas) {
-        fn render_map(map: &HashMap<Point, Vec<(GameObjectType, Pixel)>>, canvas: &mut WindowCanvas) {
+        fn render_map(
+            map: &HashMap<Point, Vec<(GameObjectType, Pixel)>>,
+            canvas: &mut WindowCanvas,
+        ) {
             map.iter().for_each(|(_point, pixels)| {
                 pixels.iter().for_each(|pixel| {
                     canvas.set_draw_color(pixel.1.color);
 
-                    let canvas_point = sdl2::rect::Point::new(pixel.1.location.x as i32, pixel.1.location.y as i32);
+                    let canvas_point = sdl2::rect::Point::new(
+                        pixel.1.location.x as i32,
+                        pixel.1.location.y as i32,
+                    );
                     canvas.draw_point(canvas_point).unwrap();
                 })
             });

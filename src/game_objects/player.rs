@@ -42,13 +42,18 @@ impl Player {
             shape.push(row.clone());
         }
 
-        assert!(shape.len() < u32::MAX as usize, "Shape height larger than expected");
-        assert!(shape[0].len() < u32::MAX as usize, "Shape width larger than expected");
+        assert!(
+            shape.len() < u32::MAX as usize,
+            "Shape height larger than expected"
+        );
+        assert!(
+            shape[0].len() < u32::MAX as usize,
+            "Shape width larger than expected"
+        );
 
         let mut pixels: HashMap<Point, Pixel> = HashMap::new();
         for y in 0..shape.len() {
             for x in 0..shape[y].len() {
-
                 if let Some(color) = shape[y][x] {
                     let location = Point::new(x as u32, y as u32);
                     pixels.insert(location.clone(), Pixel::new(location, color));

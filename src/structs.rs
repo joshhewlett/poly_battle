@@ -1,5 +1,5 @@
 use sdl2::pixels::Color;
-use std::collections::{HashMap};
+use std::collections::HashMap;
 
 ///
 /// Point definition
@@ -7,11 +7,10 @@ use std::collections::{HashMap};
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Point {
     pub x: u32,
-    pub y: u32
+    pub y: u32,
 }
 
 impl Point {
-
     pub fn new(x: u32, y: u32) -> Point {
         Self { x, y }
     }
@@ -129,11 +128,16 @@ impl Default for Shape {
 
         let mut pixels: HashMap<Point, Pixel> = HashMap::new();
 
-        assert!(shape.len() < u32::MAX as usize, "Shape height larger than expected");
-        assert!(shape[0].len() < u32::MAX as usize, "Shape width larger than expected");
+        assert!(
+            shape.len() < u32::MAX as usize,
+            "Shape height larger than expected"
+        );
+        assert!(
+            shape[0].len() < u32::MAX as usize,
+            "Shape width larger than expected"
+        );
         for y in 0..shape.len() {
             for x in 0..shape[y].len() {
-
                 let color = shape[y][x];
                 if color.is_some() {
                     let location = Point::new(x as u32, y as u32);

@@ -1,7 +1,7 @@
+mod boundary;
 mod coin;
 mod player;
-mod boundary;
 
+pub use boundary::*;
 pub use coin::*;
 pub use player::*;
-pub use boundary::*;

@@ -1,7 +1,7 @@
-use std::collections::HashMap;
-use sdl2::pixels::Color;
 use crate::structs::*;
 use crate::traits::{Drawable, GameObject};
+use sdl2::pixels::Color;
+use std::collections::HashMap;
 
 static BOUNDARY_WIDTH: usize = 5;
 static BOUNDARY_COLOR: Color = Color::WHITE;
@@ -20,7 +20,6 @@ impl Boundary {
     }
 
     fn get_boundary_shape(map_width: u32, map_height: u32) -> Shape {
-
         // Base 1d array
         let mut base_shape_data = vec![None; map_height as usize * map_width as usize];
 
@@ -52,8 +51,7 @@ impl Boundary {
                 shape_data_grid[y][x] = Some(BOUNDARY_COLOR.clone());
 
                 // Right boundary
-                shape_data_grid[y][(x + map_width as usize) - 5] =
-                    Some(BOUNDARY_COLOR.clone());
+                shape_data_grid[y][(x + map_width as usize) - 5] = Some(BOUNDARY_COLOR.clone());
             }
         }
 
@@ -93,7 +91,5 @@ impl GameObject for Boundary {
         GameObjectType::Wall(0)
     }
 
-    fn tick(&mut self) {
-
-    }
+    fn tick(&mut self) {}
 }

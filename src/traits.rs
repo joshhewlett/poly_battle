@@ -25,10 +25,8 @@ pub trait Drawable: GameObject {
 /// Collidable definition
 ///
 pub trait Collidable: Drawable {
-
     // TODO: Is this needed?
     fn has_collided(&self, _other: &dyn Collidable) -> bool {
-
         true
     }
 }
