@@ -4,8 +4,8 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 
-use pacman::game_state::*;
-use pacman::player_input::*;
+use poly_battle::game_state::*;
+use poly_battle::player_input::*;
 
 static GAME_TITLE: &'static str = "PolyBattle";
 static WINDOW_WIDTH: u32 = 800;
