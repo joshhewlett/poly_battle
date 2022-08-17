@@ -7,6 +7,7 @@ use sdl2::pixels::Color;
 use pacman::game_state::*;
 use pacman::player_input::*;
 
+static GAME_TITLE: &'static str = "PolyBattle";
 static WINDOW_WIDTH: u32 = 800;
 static WINDOW_HEIGHT: u32 = 600;
 
@@ -26,7 +27,7 @@ pub fn start() {
     let video_subsystem = sdl_context.video().unwrap();
 
     let window = video_subsystem
-        .window("PacMan (Maybe Snake (idk rn))", WINDOW_WIDTH, WINDOW_HEIGHT)
+        .window(GAME_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT)
         .position_centered()
         .build()
         .unwrap();
