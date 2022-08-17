@@ -49,10 +49,9 @@ impl Player {
         for y in 0..shape.len() {
             for x in 0..shape[y].len() {
 
-                let color = shape[y][x];
-                if color.is_some() {
+                if let Some(color) = shape[y][x] {
                     let location = Point::new(x as u32, y as u32);
-                    pixels.insert(location.clone(), Pixel::new(location, color.unwrap()));
+                    pixels.insert(location.clone(), Pixel::new(location, color));
                 }
             }
         }

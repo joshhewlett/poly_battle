@@ -1,6 +1,5 @@
-use crate::traits::GameObject;
 use sdl2::pixels::Color;
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap};
 
 ///
 /// Point definition

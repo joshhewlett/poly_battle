@@ -2,15 +2,9 @@ use crate::game_objects::*;
 use crate::player_input::{Key, PlayerInput};
 use crate::structs::*;
 use crate::traits::*;
-use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
 use sdl2::render::WindowCanvas;
 use std::collections::{HashMap, HashSet};
-use std::collections::hash_map::Keys;
-use std::ops::Index;
-use std::time::SystemTime;
 use rand::Rng;
-use sdl2::libc::iconv;
 
 struct GameMapDimensions {
     pub width: u32,
@@ -129,7 +123,7 @@ impl GameState {
             .map
             .iter()
             // Find all points that have a Player and at least one coin
-            .filter(|(key, point_vec)| {
+            .filter(|(_key, point_vec)| {
                 point_vec.len() > 1
                     && point_vec.iter().any(|point| match point.0 {
                     GameObjectType::Player => true,
@@ -141,7 +135,7 @@ impl GameState {
                 })
             })
             // Convert Map<Point, Vec<(GameObjectType, Pixel)> to Vec<Coin IDs>
-            .flat_map(|(key, point_vec)| {
+            .flat_map(|(_key, point_vec)| {
                 point_vec
                     .iter()
                     .filter(|(game_object_type, _)| match game_object_type {
@@ -218,7 +212,7 @@ impl GameState {
 
     pub fn render(&self, canvas: &mut WindowCanvas) {
         fn render_map(map: &HashMap<Point, Vec<(GameObjectType, Pixel)>>, canvas: &mut WindowCanvas) {
-            map.iter().for_each(|(point, pixels)| {
+            map.iter().for_each(|(_point, pixels)| {
                 pixels.iter().for_each(|pixel| {
                     canvas.set_draw_color(pixel.1.color);
 

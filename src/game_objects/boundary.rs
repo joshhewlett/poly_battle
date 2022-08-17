@@ -94,6 +94,6 @@ impl GameObject for Boundary {
     }
 
     fn tick(&mut self) {
-        ()
+
     }
 }

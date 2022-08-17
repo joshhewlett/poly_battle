@@ -1,24 +1,14 @@
-use std::collections::HashSet;
 use std::time::{Duration, SystemTime};
 
-use sdl2;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
-use sdl2::rect::Point;
-use sdl2::render::WindowCanvas;
 
-use pacman::game_objects::*;
 use pacman::game_state::*;
 use pacman::player_input::*;
-use pacman::structs::*;
-use pacman::traits::*;
 
 static WINDOW_WIDTH: u32 = 800;
 static WINDOW_HEIGHT: u32 = 600;
-
-static CENTER_X: i32 = (WINDOW_WIDTH / 2) as i32;
-static CENTER_Y: i32 = (WINDOW_HEIGHT / 2) as i32;
 
 ///
 /// ===== Main Program ======
@@ -32,7 +22,6 @@ pub fn main() {
 
 pub fn playground() {
 
-    ()
 }
 
 pub fn start() {
@@ -103,7 +92,7 @@ pub fn start() {
         // Log how long the frame processing took
         let elapsed = now.elapsed().unwrap().as_nanos();
 
-        let percent_time_to_process = (elapsed as f64 / frame_duration as f64) * 100 as f64;
+        let percent_time_to_process = (elapsed as f64 / frame_duration as f64) * 100_f64;
         println!("Percent of frame to process: {}%", percent_time_to_process);
         println!("Elapsed time: {}", elapsed);
 

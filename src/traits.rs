@@ -1,7 +1,4 @@
 use crate::structs::*;
-use sdl2::pixels::Color;
-use sdl2::render::WindowCanvas;
-use std::collections::HashSet;
 
 ///
 /// GameObject definition
@@ -28,18 +25,10 @@ pub trait Drawable: GameObject {
 /// Collidable definition
 ///
 pub trait Collidable: Drawable {
-    fn has_collided(&self, other: &dyn Collidable) -> bool {
-        // let common_points: HashSet<Point> = self
-        //     .get_active_pixels()
-        //     .iter()
-        //     .map(|pixel| pixel.location)
-        //     .collect();
-        //
-        // other
-        //     .get_active_pixels()
-        //     .iter()
-        //     .map(|p| p.location)
-        //     .any(|p| common_points.contains(&p))
+
+    // TODO: Is this needed?
+    fn has_collided(&self, _other: &dyn Collidable) -> bool {
+
         true
     }
 }
