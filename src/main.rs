@@ -1,9 +1,9 @@
 use std::time::{Duration, SystemTime};
 
+use poly_battle::performance_tracking::PerformanceTracker;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
-use poly_battle::benchmark::Benchmark;
 
 use poly_battle::game_state::*;
 use poly_battle::player_input::*;
@@ -42,18 +42,16 @@ pub fn start() {
     let frame_duration = 1_000_000_000u32 / fps;
 
     'running: loop {
-        let now = SystemTime::now();
-
-        let mut benchmark_data = Benchmark::new();
+        let mut performance_tracker = PerformanceTracker::new();
 
         // Set background
-        benchmark_data.new_benchmark_unit("draw_bkgrnd");
-        canvas.set_draw_color(Color::BLACK);
-        canvas.clear();
-        benchmark_data.end_benchmark_unit("draw_bkgrnd").unwrap();
+        performance_tracker.measure_unit_of_work("draw_background", || {
+            canvas.set_draw_color(Color::BLACK);
+            canvas.clear();
+        });
 
-        benchmark_data.new_benchmark_unit("get_input");
         // Check for events
+        performance_tracker.start_unit_of_work("get_input");
         let mut player_input: Option<PlayerInput> = None;
         for event in event_pump.poll_iter() {
             match event {
@@ -86,30 +84,23 @@ pub fn start() {
                 _ => {}
             }
         }
-        benchmark_data.end_benchmark_unit("get_input").unwrap();
+        performance_tracker.end_unit_of_work("get_input").unwrap();
 
-        benchmark_data.new_benchmark_unit("game_tick");
-        game_state.tick(player_input);
-        benchmark_data.end_benchmark_unit("game_tick").unwrap();
+        performance_tracker.measure_unit_of_work("game_tick", || {
+            game_state.tick(player_input);
+        });
 
+        performance_tracker.measure_unit_of_work("render", || {
+            game_state.render(&mut canvas);
+        });
 
-        benchmark_data.new_benchmark_unit("render");
-        game_state.render(&mut canvas);
-        benchmark_data.end_benchmark_unit("render").unwrap();
+        performance_tracker.measure_unit_of_work("present_canvas", || {
+            canvas.present();
+        });
 
-        benchmark_data.new_benchmark_unit("present_canvas");
-        canvas.present();
-        benchmark_data.end_benchmark_unit("present_canvas").unwrap();
-
-        // // Log how long the frame processing took
-        // let elapsed = now.elapsed().unwrap().as_nanos();
-        //
-        // let percent_time_to_process = (elapsed as f64 / frame_duration as f64) * 100_f64;
-        // println!("Percent of frame to process: {}%", percent_time_to_process);
-        // println!("Elapsed time: {}", elapsed);
-        let elapsed = benchmark_data.end().unwrap().as_nanos();
-
-        println!("{}", benchmark_data);
+        // Output frame performance metrics
+        let elapsed = performance_tracker.end().unwrap().as_nanos();
+        println!("{}", performance_tracker);
 
         // Cap FPS to Frame Rate
         let remaining_frame_duration = if elapsed > frame_duration as u128 {

@@ -218,6 +218,7 @@ impl GameState {
             map: &HashMap<Point, Vec<(GameObjectType, Pixel)>>,
             canvas: &mut WindowCanvas,
         ) {
+            // Try multi-threading this?
             map.iter().for_each(|(_point, pixels)| {
                 pixels.iter().for_each(|pixel| {
                     canvas.set_draw_color(pixel.1.color);
