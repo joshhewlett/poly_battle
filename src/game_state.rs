@@ -45,19 +45,25 @@ impl GameState {
     pub fn init(map_width: u32, map_height: u32) -> Self {
         // Create map dimensions
         let map_dimensions = GameMapDimensions::new(map_width, map_height);
-        let center_point = map_dimensions.center.clone();
 
         // Create boundaries
         let boundary = Boundary::new(map_dimensions.width, map_dimensions.height);
         let boundaries: Vec<&dyn Drawable> = vec![&boundary];
         let boundary_map = GameState::convert_drawables_to_pixel_map(&boundaries);
 
+        // Create player
+        let player = Player::new(map_dimensions.center.clone());
+
+        // Create initial coin
+        let coin_origin = Point::new(map_dimensions.origin.x + 100, map_dimensions.origin.y + 100);
+        let coins = vec![Coin::new(coin_origin)];
+
         Self {
             map_dimensions,
             boundary_map,
             map: HashMap::new(),
-            player: Player::new(center_point),
-            coins: vec![Coin::default()],
+            player,
+            coins,
         }
     }
 

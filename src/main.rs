@@ -1,4 +1,4 @@
-use std::time::{Duration, SystemTime};
+use std::time::{Duration};
 
 use poly_battle::performance_tracking::PerformanceTracker;
 use sdl2::event::Event;
@@ -51,6 +51,7 @@ pub fn start() {
         });
 
         // Check for events
+        // TODO: Parallelize this to reduce startup overhead
         performance_tracker.start_unit_of_work("get_input");
         let mut player_input: Option<PlayerInput> = None;
         for event in event_pump.poll_iter() {

@@ -1,15 +1,7 @@
-use std::collections::HashMap;
 use std::time::{Duration, SystemTime};
-
-pub enum TimeUnit {
-    NANO,
-    MILLIS,
-    SECOND,
-}
 
 pub struct BenchmarkUnit {
     name: String,
-    time_unit: TimeUnit,
     start: SystemTime,
     elapsed: Option<Duration>,
 }
@@ -18,7 +10,6 @@ impl BenchmarkUnit {
     pub fn new(name: &str) -> Self {
         Self {
             name: name.to_owned(),
-            time_unit: TimeUnit::MILLIS,
             start: SystemTime::now(),
             elapsed: None,
         }
@@ -83,7 +74,7 @@ impl PerformanceTracker {
     }
 
     pub fn end_unit_of_work(&mut self, name: &str) -> Result<(), String> {
-        let mut unit = self
+        let unit = self
             .benchmarks
             .iter_mut()
             .find(|unit| unit.name == name)
@@ -117,7 +108,7 @@ impl std::fmt::Display for PerformanceTracker {
         let mut output = format!("Total time: {}", elapsed_str);
         self.benchmarks
             .iter()
-            .for_each(|(unit)| output.push_str(format!("\n    {}", unit).as_str()));
+            .for_each(|unit| output.push_str(format!("\n    {}", unit).as_str()));
 
         write!(f, "{}", output)
     }
