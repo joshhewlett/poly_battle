@@ -4,51 +4,67 @@ use crate::traits::*;
 ///
 /// Coin definition
 ///
+static mut ID_COUNTER: u32 = 0;
+
 pub struct Coin {
-    position: Point,
-    shape: Shape,
-    id: i32,
+    id: u32,
+    game_object_type: GameObjectType,
+    origin: Point,
+    sprite: Sprite,
+    shape: Shape
 }
 
 impl Coin {
-    pub fn new(position: Point) -> Self {
+    pub fn new(origin: Point) -> Self {
+
         Coin {
-            position,
+            id: Coin::get_id(),
+            game_object_type: GameObjectType::Coin,
+            origin,
+            sprite: Sprite::default(),
             shape: Shape::default(),
-            id: 0,
         }
     }
 
-    pub fn id(&self) -> i32 {
+    fn get_id() -> u32 {
+        let id: u32;
+        unsafe {
+            id = ID_COUNTER;
+            ID_COUNTER += 1;
+        }
+
+        id
+    }
+}
+
+impl GameObject for Coin {
+    fn id(&self) -> u32 {
         self.id
+    }
+
+    fn game_object_type(&self) -> &GameObjectType {
+        &self.game_object_type
+    }
+
+    fn origin(&self) -> &Point {
+        &self.origin
+    }
+
+    fn set_origin(&mut self, new_origin: &Point) {
+        self.origin = new_origin.clone();
+    }
+
+    fn sprite(&self) -> &Sprite {
+         &self.sprite
+    }
+
+    fn sprite_dimensions(&self) -> &Dimensions {
+        self.sprite.dimensions()
     }
 }
 
 impl Default for Coin {
     fn default() -> Self {
         Coin::new(Point::default())
-    }
-}
-
-// TODO: This is probably a good use of #derive!
-impl Drawable for Coin {
-    fn position(&self) -> Point {
-        self.position.clone()
-    }
-
-    fn set_position(&mut self, new_position: Point) {
-        self.position = new_position;
-    }
-
-    fn shape(&self) -> &Shape {
-        &self.shape
-    }
-}
-
-impl Collidable for Coin {}
-
-impl GameObject for Coin {
-    fn game_object_type(&self) -> GameObjectType {
-        GameObjectType::Coin(self.id())
     }
 }

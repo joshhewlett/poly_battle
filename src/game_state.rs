@@ -48,7 +48,7 @@ impl GameState {
 
         // Create boundaries
         let boundary = Boundary::new(map_dimensions.width, map_dimensions.height);
-        let boundaries: Vec<&dyn Drawable> = vec![&boundary];
+        let boundaries: Vec<&dyn GameObject> = vec![&boundary];
         let boundary_map = GameState::convert_drawables_to_pixel_map(&boundaries);
 
         // Create player
@@ -90,10 +90,10 @@ impl GameState {
 
         // Apply player movement
         // If player collides with boundary/wall, return to original position
-        let player_pos = self.player.position();
+        let player_pos = self.player.origin().clone();
         self.player.apply_movement();
         if self.has_collided_with_boundary(&self.player) {
-            self.player.set_position(player_pos);
+            self.player.set_origin(&player_pos);
         }
 
         // Update game state
@@ -113,10 +113,10 @@ impl GameState {
         }
     }
 
-    fn has_collided_with_boundary(&self, drawable: &dyn Drawable) -> bool {
-        let drawables = vec![drawable];
+    fn has_collided_with_boundary(&self, game_object: &dyn GameObject) -> bool {
+        let game_objects = vec![game_object];
         let drawable_pixels: HashMap<Point, Vec<(GameObjectType, Pixel)>> =
-            GameState::convert_drawables_to_pixel_map(&drawables);
+            GameState::convert_drawables_to_pixel_map(&game_objects);
 
         self.boundary_map
             .iter()
@@ -126,42 +126,41 @@ impl GameState {
     fn check_for_collisions_with_player_and_coins(&mut self) {
         // Did player collide with a coin?
         // Destroy coin
-        let coin_ids: HashSet<i32> = self
-            .map
-            .iter()
-            // Find all points that have a Player and at least one coin
-            .filter(|(_key, point_vec)| {
-                point_vec.len() > 1
-                    && point_vec.iter().any(|point| match point.0 {
-                        GameObjectType::Player => true,
-                        _ => false,
-                    })
-                    && point_vec.iter().any(|point| match point.0 {
-                        GameObjectType::Coin(_) => true,
-                        _ => false,
-                    })
-            })
-            // Convert Map<Point, Vec<(GameObjectType, Pixel)> to Vec<Coin IDs>
-            .flat_map(|(_key, point_vec)| {
-                point_vec
-                    .iter()
-                    .filter(|(game_object_type, _)| match game_object_type {
-                        GameObjectType::Coin(_) => true,
-                        _ => false,
-                    })
-                    .map(|(coin, _)| match coin {
-                        GameObjectType::Coin(id) => id.clone(),
-                        _ => panic!("Found non-coin object where I shouldn't"),
-                    })
-            })
-            .collect::<HashSet<i32>>();
 
-        coin_ids
-            .iter()
-            .for_each(|coin_id| self.collect_coin(coin_id.to_owned()));
+        // TODO: Uncomment here
+        // let coin_ids: HashSet<u32> = self
+        //     .map
+        //     .iter()
+        //     // Find all points that have a Player and at least one coin
+        //     .filter(|(_key, point_vec)| {
+        //         point_vec.len() > 1
+        //             && point_vec.iter().any(|point| match point.0 {
+        //                 GameObjectType::Player => true,
+        //                 _ => false,
+        //             })
+        //             && point_vec.iter().any(|point| match point.0 {
+        //                 GameObjectType::Coin => true,
+        //                 _ => false,
+        //             })
+        //     })
+        //     // Convert Map<Point, Vec<(GameObjectType, Pixel)> to Vec<Coin IDs>
+        //     .flat_map(|(_key, point_vec)| {
+        //         point_vec
+        //             .iter()
+        //             .filter(|(game_object_type, _)| match game_object_type {
+        //                 GameObjectType::Coin => true,
+        //                 _ => false,
+        //             })
+        //             .map(|(coin, _)| coin.id())
+        //     })
+        //     .collect::<HashSet<u32>>();
+        //
+        // coin_ids
+        //     .iter()
+        //     .for_each(|coin_id| self.collect_coin(coin_id.to_owned()));
     }
 
-    fn collect_coin(&mut self, coin_id: i32) {
+    fn collect_coin(&mut self, coin_id: u32) {
         println!("Collected coin: {}", coin_id);
         let index_opt = self
             .coins
@@ -181,23 +180,23 @@ impl GameState {
         // Last element in the drawables map will be at the forefront. Technically, the player
         // should be added last, but it's not an issue right now
         // let mut drawables: Vec<&dyn Drawable> = vec![&self.boundaries[0], &self.player];
-        let mut drawables: Vec<&dyn Drawable> = vec![&self.player];
+        let mut drawables: Vec<&dyn GameObject> = vec![&self.player];
         self.coins.iter().for_each(|c| drawables.push(c));
 
         self.map = GameState::convert_drawables_to_pixel_map(&drawables);
     }
 
     fn convert_drawables_to_pixel_map(
-        drawables: &Vec<&dyn Drawable>,
+        drawables: &Vec<&dyn GameObject>,
     ) -> HashMap<Point, Vec<(GameObjectType, Pixel)>> {
         let mut map: HashMap<Point, Vec<(GameObjectType, Pixel)>> = HashMap::new();
         for drawable in drawables {
-            let entity_position: Point = drawable.position();
-            let entity_shape: &Shape = drawable.shape();
-            let entity_type: GameObjectType = drawable.game_object_type();
+            let entity_position: &Point = drawable.origin();
+            let entity_shape: &Sprite = drawable.sprite();
+            let entity_type: &GameObjectType = drawable.game_object_type();
 
             entity_shape
-                .shape_data()
+                .pixels()
                 .iter()
                 .for_each(|(pixel_location, pixel)| {
                     let absolute_pos = Point::new(

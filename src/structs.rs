@@ -69,6 +69,69 @@ impl Default for Pixel {
 }
 
 ///
+/// Dimensions definition
+///
+pub struct Dimensions {
+    pub width: u32,
+    pub height: u32,
+}
+
+impl Dimensions {
+    pub fn new(width: u32, height: u32) -> Self {
+        Dimensions { width, height }
+    }
+}
+
+///
+/// Sprite definition
+///
+pub struct Sprite {
+    dimensions: Dimensions,
+    sprite_data: HashMap<Point, Pixel>,
+}
+
+impl Sprite {
+    pub fn new(sprite_data: HashMap<Point, Pixel>) -> Self{
+        let mut x_max: u32 = 0;
+        let mut y_max: u32 = 0;
+
+        // Find width and height of sprite
+        for (point, _pixel) in sprite_data.iter() {
+            if point.x >= x_max {
+                x_max = point.x
+            }
+            if point.y >= y_max {
+                y_max = point.y
+            }
+        }
+
+        Sprite {
+            dimensions: Dimensions::new(x_max, y_max),
+            sprite_data
+        }
+    }
+
+    // TODO
+    // pub fn new_from_file(file_name: &str) -> Self {
+    // }
+
+    pub fn dimensions(&self) -> &Dimensions {
+        &self.dimensions
+    }
+
+    pub fn pixels(&self) -> &HashMap<Point, Pixel> {
+        &self.sprite_data
+    }
+}
+
+// TODO delete this
+impl Default for Sprite {
+    fn default() -> Self {
+        Sprite::new(Shape::default().shape_data())
+    }
+}
+
+///
 /// Shape definition
 ///
 // TODO: Shape should be Drawable
@@ -91,8 +154,8 @@ impl Shape {
         }
     }
 
-    pub fn shape_data(&self) -> &HashMap<Point, Pixel> {
-        &self.shape
+    pub fn shape_data(&self) -> HashMap<Point, Pixel> {
+        self.shape.clone()
     }
 
     pub fn get_pixel(&self, x: u32, y: u32) -> Option<&Pixel> {
@@ -156,6 +219,6 @@ pub struct CollisionRule {}
 #[derive(Debug, Clone, PartialEq)]
 pub enum GameObjectType {
     Player,
-    Coin(i32),
-    Wall(i32),
+    Coin,
+    Boundary,
 }

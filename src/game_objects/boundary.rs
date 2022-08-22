@@ -1,23 +1,39 @@
 use crate::structs::*;
-use crate::traits::{Drawable, GameObject};
+use crate::traits::{GameObject};
 use sdl2::pixels::Color;
 use std::collections::HashMap;
 
 static BOUNDARY_WIDTH: usize = 5;
 static BOUNDARY_COLOR: Color = Color::WHITE;
+static mut ID_COUNTER: u32 = 0;
 
 pub struct Boundary {
-    position: Point,
-    shape: Shape,
+    id: u32,
+    game_object_type: GameObjectType,
+    origin: Point,
+    sprite: Sprite,
 }
 
 impl Boundary {
     pub fn new(map_width: u32, map_height: u32) -> Self {
         Self {
-            position: Point::new(0, 0),
-            shape: Boundary::get_boundary_shape(map_width, map_height),
+            id: Boundary::get_id(),
+            game_object_type: GameObjectType::Boundary,
+            origin: Point::new(0, 0),
+            sprite: Sprite::new(Boundary::get_boundary_shape(map_width, map_height).shape_data()),
         }
     }
+
+    fn get_id() -> u32 {
+        let id: u32;
+        unsafe {
+            id = ID_COUNTER;
+            ID_COUNTER += 1;
+        }
+
+        id
+    }
+
 
     fn get_boundary_shape(map_width: u32, map_height: u32) -> Shape {
         // Base 1d array
@@ -71,24 +87,29 @@ impl Boundary {
     }
 }
 
-// Should Drawable be on GameObject?
-impl Drawable for Boundary {
-    fn position(&self) -> Point {
-        self.position.clone()
-    }
-
-    fn set_position(&mut self, new_position: Point) {
-        self.position = new_position;
-    }
-
-    fn shape(&self) -> &Shape {
-        &self.shape
-    }
-}
-
 impl GameObject for Boundary {
-    fn game_object_type(&self) -> GameObjectType {
-        GameObjectType::Wall(0)
+    fn id(&self) -> u32 {
+        self.id
+    }
+
+    fn game_object_type(&self) -> &GameObjectType {
+        &self.game_object_type
+    }
+
+    fn origin(&self) -> &Point {
+        &self.origin
+    }
+
+    fn set_origin(&mut self, new_origin: &Point) {
+        self.origin = new_origin.clone();
+    }
+
+    fn sprite(&self) -> &Sprite {
+        &self.sprite
+    }
+
+    fn sprite_dimensions(&self) -> &Dimensions {
+        self.sprite.dimensions()
     }
 
     fn tick(&mut self) {}

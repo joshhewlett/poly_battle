@@ -6,24 +6,41 @@ use std::collections::HashMap;
 ///
 /// Player definition
 ///
+static mut ID_COUNTER: u32 = 0;
+
 pub struct Player {
-    position: Point,
-    shape: Shape,
-    current_direction: Direction,
+    id: u32,
+    game_object_type: GameObjectType,
+    origin: Point,
+    sprite: Sprite,
     speed: u32,
-    coin_count: i32,
+    current_direction: Direction,
+    coin_count: u32,
 }
 
 impl Player {
-    pub fn new(position: Point) -> Self {
+    pub fn new(origin: Point) -> Self {
         Player {
-            position,
-            shape: Player::get_shape(),
+            id: Player::get_id(),
+            game_object_type: GameObjectType::Player,
+            origin,
+            sprite: Sprite::new(Player::get_shape().shape_data()),
             current_direction: Direction::default(),
             speed: 5,
             coin_count: 0,
         }
     }
+
+    fn get_id() -> u32 {
+        let id: u32;
+        unsafe {
+            id = ID_COUNTER;
+            ID_COUNTER += 1;
+        }
+
+        id
+    }
+
 
     fn get_shape() -> Shape {
         let row = vec![
@@ -69,12 +86,42 @@ impl Player {
         self.coin_count += 1;
     }
 
-    pub fn coin_count(&mut self) -> i32 {
+    pub fn coin_count(&mut self) -> u32 {
         self.coin_count
     }
 
     pub fn change_speed(&mut self, speed: u32) {
         self.speed = speed;
+    }
+}
+
+impl GameObject for Player {
+    fn id(&self) -> u32 {
+        self.id
+    }
+
+    fn game_object_type(&self) -> &GameObjectType {
+        &self.game_object_type
+    }
+
+    fn origin(&self) -> &Point {
+        &self.origin
+    }
+
+    fn set_origin(&mut self, new_origin: &Point) {
+        self.origin = new_origin.clone();
+    }
+
+    fn sprite(&self) -> &Sprite {
+        &self.sprite
+    }
+
+    fn sprite_dimensions(&self) -> &Dimensions {
+        self.sprite.dimensions()
+    }
+
+    fn tick(&mut self) {
+        self.apply_movement();
     }
 }
 
@@ -84,42 +131,16 @@ impl Default for Player {
     }
 }
 
-// Should Drawable be on GameObject?
-impl Drawable for Player {
-    fn position(&self) -> Point {
-        self.position.clone()
-    }
-
-    fn set_position(&mut self, new_position: Point) {
-        self.position = new_position;
-    }
-
-    fn shape(&self) -> &Shape {
-        &self.shape
-    }
-}
-
-impl Collidable for Player {}
-
 impl Moveable for Player {
     fn direction(&self) -> &Direction {
         &self.current_direction
-    }
-    fn speed(&self) -> u32 {
-        self.speed
     }
 
     fn change_direction(&mut self, new_direction: Direction) {
         self.current_direction = new_direction;
     }
-}
 
-impl GameObject for Player {
-    fn game_object_type(&self) -> GameObjectType {
-        GameObjectType::Player
-    }
-
-    fn tick(&mut self) {
-        self.apply_movement();
+    fn speed(&self) -> u32 {
+        self.speed
     }
 }
