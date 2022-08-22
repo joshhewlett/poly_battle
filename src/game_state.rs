@@ -208,10 +208,9 @@ impl GameState {
                         map.insert(absolute_pos.clone(), Vec::new());
                     }
 
-                    map.get_mut(&absolute_pos).unwrap().push((
-                        entity_type.clone(),
-                        Pixel::new(absolute_pos.clone(), pixel.color.clone()),
-                    ));
+                    map.get_mut(&absolute_pos)
+                        .unwrap()
+                        .push((entity_type.clone(), Pixel::new(&pixel.color)));
                 })
         }
 
@@ -224,14 +223,11 @@ impl GameState {
             canvas: &mut WindowCanvas,
         ) {
             // Try multi-threading this?
-            map.iter().for_each(|(_point, pixels)| {
+            map.iter().for_each(|(point, pixels)| {
                 pixels.iter().for_each(|pixel| {
                     canvas.set_draw_color(pixel.1.color);
 
-                    let canvas_point = sdl2::rect::Point::new(
-                        pixel.1.location.x as i32,
-                        pixel.1.location.y as i32,
-                    );
+                    let canvas_point = sdl2::rect::Point::new(point.x as i32, point.y as i32);
                     canvas.draw_point(canvas_point).unwrap();
                 })
             });

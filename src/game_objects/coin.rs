@@ -11,18 +11,15 @@ pub struct Coin {
     game_object_type: GameObjectType,
     origin: Point,
     sprite: Sprite,
-    shape: Shape
 }
 
 impl Coin {
     pub fn new(origin: Point) -> Self {
-
         Coin {
             id: Coin::get_id(),
             game_object_type: GameObjectType::Coin,
             origin,
             sprite: Sprite::default(),
-            shape: Shape::default(),
         }
     }
 
@@ -55,7 +52,7 @@ impl GameObject for Coin {
     }
 
     fn sprite(&self) -> &Sprite {
-         &self.sprite
+        &self.sprite
     }
 
     fn sprite_dimensions(&self) -> &Dimensions {

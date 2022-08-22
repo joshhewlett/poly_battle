@@ -44,26 +44,13 @@ impl Default for Direction {
 ///
 #[derive(Debug, Clone)]
 pub struct Pixel {
-    pub location: Point,
-    // TODO: Replace with custom implementation
-    pub color: Color,
+    pub color: Color, // TODO: Replace with custom implementation
 }
 
 impl Pixel {
-    pub fn new(location: Point, color: Color) -> Self {
-        Self { location, color }
-    }
-
-    pub fn same_location(&self, other: &Self) -> bool {
-        self.location == other.location
-    }
-}
-
-impl Default for Pixel {
-    fn default() -> Self {
-        Self {
-            location: Point::new(0, 0),
-            color: Color::WHITE,
+    pub fn new(color: &Color) -> Self {
+        Pixel {
+            color: color.clone(),
         }
     }
 }
@@ -91,7 +78,7 @@ pub struct Sprite {
 }
 
 impl Sprite {
-    pub fn new(sprite_data: HashMap<Point, Pixel>) -> Self{
+    pub fn new(sprite_data: HashMap<Point, Pixel>) -> Self {
         let mut x_max: u32 = 0;
         let mut y_max: u32 = 0;
 
@@ -107,7 +94,7 @@ impl Sprite {
 
         Sprite {
             dimensions: Dimensions::new(x_max, y_max),
-            sprite_data
+            sprite_data,
         }
     }
 
@@ -122,57 +109,8 @@ impl Sprite {
     pub fn pixels(&self) -> &HashMap<Point, Pixel> {
         &self.sprite_data
     }
-}
 
-// TODO delete this
-impl Default for Sprite {
-    fn default() -> Self {
-        Sprite::new(Shape::default().shape_data())
-    }
-}
-
-///
-/// Shape definition
-///
-// TODO: Shape should be Drawable
-pub struct Shape {
-    // TODO: Replace with Pixel
-    // shape: Vec<Vec<Option<Color>>>,
-    // TODO: Consider renaming this
-    shape: HashMap<Point, Pixel>,
-    width: usize,
-    height: usize,
-}
-
-// TODO: Should Shape implement Iterable?
-impl Shape {
-    pub fn new(shape: HashMap<Point, Pixel>, width: usize, height: usize) -> Self {
-        Self {
-            shape,
-            width,
-            height,
-        }
-    }
-
-    pub fn shape_data(&self) -> HashMap<Point, Pixel> {
-        self.shape.clone()
-    }
-
-    pub fn get_pixel(&self, x: u32, y: u32) -> Option<&Pixel> {
-        self.shape.get(&Point::new(x, y))
-    }
-
-    pub fn width(&self) -> usize {
-        self.width
-    }
-
-    pub fn height(&self) -> usize {
-        self.height
-    }
-}
-
-impl Default for Shape {
-    fn default() -> Self {
+    fn build_default_sprite() -> HashMap<Point, Pixel> {
         let row = vec![
             Some(Color::WHITE),
             Some(Color::WHITE),
@@ -204,18 +142,25 @@ impl Default for Shape {
                 let color = shape[y][x];
                 if color.is_some() {
                     let location = Point::new(x as u32, y as u32);
-                    pixels.insert(location.clone(), Pixel::new(location, color.unwrap()));
+                    pixels.insert(location.clone(), Pixel::new(&color.unwrap()));
                 }
             }
         }
 
-        // Shape::new(shape)
-        Shape::new(pixels, shape[0].len(), shape.len())
+        pixels
     }
 }
 
-pub struct CollisionRule {}
+// TODO delete this
+impl Default for Sprite {
+    fn default() -> Self {
+        Sprite::new(Sprite::build_default_sprite())
+    }
+}
 
+///
+/// GameObjectType definition
+///
 #[derive(Debug, Clone, PartialEq)]
 pub enum GameObjectType {
     Player,

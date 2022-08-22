@@ -12,6 +12,7 @@ pub struct Player {
     id: u32,
     game_object_type: GameObjectType,
     origin: Point,
+    prev_origin: Option<Point>,
     sprite: Sprite,
     speed: u32,
     current_direction: Direction,
@@ -24,7 +25,8 @@ impl Player {
             id: Player::get_id(),
             game_object_type: GameObjectType::Player,
             origin,
-            sprite: Sprite::new(Player::get_shape().shape_data()),
+            prev_origin: None,
+            sprite: Sprite::new(Player::get_shape()),
             current_direction: Direction::default(),
             speed: 5,
             coin_count: 0,
@@ -41,8 +43,7 @@ impl Player {
         id
     }
 
-
-    fn get_shape() -> Shape {
+    fn get_shape() -> HashMap<Point, Pixel> {
         let row = vec![
             Some(Color::RED),
             Some(Color::RED),
@@ -73,13 +74,12 @@ impl Player {
             for x in 0..shape[y].len() {
                 if let Some(color) = shape[y][x] {
                     let location = Point::new(x as u32, y as u32);
-                    pixels.insert(location.clone(), Pixel::new(location, color));
+                    pixels.insert(location.clone(), Pixel::new(&color));
                 }
             }
         }
 
-        // Shape::new(shape)
-        Shape::new(pixels, shape[0].len(), shape.len())
+        pixels
     }
 
     pub fn increment_coin_count(&mut self) {
@@ -131,7 +131,7 @@ impl Default for Player {
     }
 }
 
-impl Moveable for Player {
+impl Movable for Player {
     fn direction(&self) -> &Direction {
         &self.current_direction
     }
@@ -142,5 +142,16 @@ impl Moveable for Player {
 
     fn speed(&self) -> u32 {
         self.speed
+    }
+
+    fn prev_origin(&self) -> Option<&Point> {
+        match &self.prev_origin {
+            Some(point) => Some(point),
+            None => None,
+        }
+    }
+
+    fn set_prev_origin(&mut self, origin: &Point) {
+        self.prev_origin = Some(origin.clone());
     }
 }

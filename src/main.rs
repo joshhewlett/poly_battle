@@ -1,4 +1,4 @@
-use std::time::{Duration};
+use std::time::Duration;
 
 use poly_battle::performance_tracking::PerformanceTracker;
 use sdl2::event::Event;

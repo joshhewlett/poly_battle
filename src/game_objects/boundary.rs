@@ -1,5 +1,6 @@
 use crate::structs::*;
-use crate::traits::{GameObject};
+use crate::traits::GameObject;
+use sdl2::keyboard::Keycode::Hash;
 use sdl2::pixels::Color;
 use std::collections::HashMap;
 
@@ -16,11 +17,11 @@ pub struct Boundary {
 
 impl Boundary {
     pub fn new(map_width: u32, map_height: u32) -> Self {
-        Self {
+        Boundary {
             id: Boundary::get_id(),
             game_object_type: GameObjectType::Boundary,
             origin: Point::new(0, 0),
-            sprite: Sprite::new(Boundary::get_boundary_shape(map_width, map_height).shape_data()),
+            sprite: Sprite::new(Boundary::get_boundary_shape(map_width, map_height)),
         }
     }
 
@@ -34,8 +35,7 @@ impl Boundary {
         id
     }
 
-
-    fn get_boundary_shape(map_width: u32, map_height: u32) -> Shape {
+    fn get_boundary_shape(map_width: u32, map_height: u32) -> HashMap<Point, Pixel> {
         // Base 1d array
         let mut base_shape_data = vec![None; map_height as usize * map_width as usize];
 
@@ -78,12 +78,12 @@ impl Boundary {
                 let color = shape_data_grid[y][x];
                 if color.is_some() {
                     let location = Point::new(x as u32, y as u32);
-                    pixels.insert(location.clone(), Pixel::new(location, color.unwrap()));
+                    pixels.insert(location.clone(), Pixel::new(&color.unwrap()));
                 }
             }
         }
 
-        Shape::new(pixels, shape_data_grid[0].len(), shape_data_grid.len())
+        pixels
     }
 }
 
