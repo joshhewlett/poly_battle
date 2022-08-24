@@ -1,4 +1,5 @@
 use crate::game_objects::*;
+use crate::performance_tracking::PerformanceTracker;
 use crate::player_input::{Key, PlayerInput};
 use crate::structs::*;
 use crate::traits::*;
@@ -35,7 +36,7 @@ impl GameMapDimensions {
 ///
 pub struct GameState {
     map_dimensions: GameMapDimensions,
-    boundary_map: HashMap<Point, Vec<(GameObjectType, Pixel)>>,
+    boundary: Boundary,
     map: HashMap<Point, Vec<(GameObjectType, Pixel)>>,
     player: Player,
     coins: Vec<Coin>,
@@ -48,8 +49,6 @@ impl GameState {
 
         // Create boundaries
         let boundary = Boundary::new(map_dimensions.width, map_dimensions.height);
-        let boundaries: Vec<&dyn GameObject> = vec![&boundary];
-        let boundary_map = GameState::convert_drawables_to_pixel_map(&boundaries);
 
         // Create player
         let player = Player::new(map_dimensions.center.clone());
@@ -60,7 +59,7 @@ impl GameState {
 
         Self {
             map_dimensions,
-            boundary_map,
+            boundary,
             map: HashMap::new(),
             player,
             coins,
@@ -68,7 +67,7 @@ impl GameState {
     }
 
     pub fn tick(&mut self, event: Option<PlayerInput>) {
-        // Input
+        //////// Handle Input //////
         if event.is_some() {
             match event.unwrap() {
                 PlayerInput::KeyDown(key) => match key {
@@ -86,22 +85,20 @@ impl GameState {
             println!("Player direction: {:?}", self.player.direction());
         }
 
-        // Tick frame
+        ////// Game Logic //////
 
-        // Apply player movement
+        //// Tick GameObjects
+        self.player.tick();
+
+        //// Handle collisions
         // If player collides with boundary/wall, return to original position
-        let player_pos = self.player.origin().clone();
-        self.player.apply_movement();
-        if self.has_collided_with_boundary(&self.player) {
-            self.player.set_origin(&player_pos);
-        }
+        self.handle_collisions_with_boundary();
 
-        // Update game state
+        // If player collides with coin, "collect" coin
+        self.handle_collisions_with_coins();
+
+        //// Convert to map
         self.update_game_state();
-
-        // --- Physics
-        // Check for collisions
-        self.check_for_collisions_with_player_and_coins();
 
         // Spawn coin if no other coin exists
         if self.coins.is_empty() {
@@ -113,59 +110,71 @@ impl GameState {
         }
     }
 
-    fn has_collided_with_boundary(&self, game_object: &dyn GameObject) -> bool {
-        let game_objects = vec![game_object];
-        let drawable_pixels: HashMap<Point, Vec<(GameObjectType, Pixel)>> =
-            GameState::convert_drawables_to_pixel_map(&game_objects);
+    fn handle_collisions_with_boundary(&mut self) {
+        // TODO: Implement momoization - Could shave off 0.8ms
+        let effective_player_points: HashSet<Point> = self.player.calc_effective_points();
 
-        self.boundary_map
+        // Check for player and boundary collisions
+        for player_point in &effective_player_points {
+            // If player collides with boundary, set the player's origin to it's previous position
+            if self.boundary.sprite().pixels().contains_key(&player_point) {
+                let prev_player_origin = self.player.prev_origin_unchecked();
+                self.player.set_origin(&prev_player_origin.clone());
+                break;
+            }
+        }
+    }
+
+    fn handle_collisions_with_coins(&mut self) {
+        let effective_player_points: HashSet<Point> = self.player.calc_effective_points();
+
+        // Map of coin_id -> coin_pixels
+        let coins: HashMap<u32, HashSet<Point>> = self
+            .coins
             .iter()
-            .any(|(k, _)| drawable_pixels.contains_key(k))
+            .map(|coin| (coin.id(), coin.calc_effective_points()))
+            .collect();
+
+        coins
+            .iter()
+            .filter(|(coin_id, coin_pixels)| {
+                Self::has_collided(&effective_player_points, &coin_pixels)
+            })
+            .for_each(|(coin_id, _coin_pixels)| self.collect_coin(coin_id));
     }
 
-    fn check_for_collisions_with_player_and_coins(&mut self) {
-        // Did player collide with a coin?
-        // Destroy coin
+    // TODO: Remove once momoization is implemented
+    fn has_collided(
+        object_1_effective_points: &HashSet<Point>,
+        object_2_effective_points: &HashSet<Point>,
+    ) -> bool {
+        let smaller_object: &HashSet<Point>;
+        let bigger_object: &HashSet<Point>;
+        match object_1_effective_points.len() < object_2_effective_points.len() {
+            true => {
+                smaller_object = &object_1_effective_points;
+                bigger_object = &object_2_effective_points;
+            }
+            false => {
+                bigger_object = &object_1_effective_points;
+                smaller_object = &object_2_effective_points;
+            }
+        }
 
-        // TODO: Uncomment here
-        // let coin_ids: HashSet<u32> = self
-        //     .map
-        //     .iter()
-        //     // Find all points that have a Player and at least one coin
-        //     .filter(|(_key, point_vec)| {
-        //         point_vec.len() > 1
-        //             && point_vec.iter().any(|point| match point.0 {
-        //                 GameObjectType::Player => true,
-        //                 _ => false,
-        //             })
-        //             && point_vec.iter().any(|point| match point.0 {
-        //                 GameObjectType::Coin => true,
-        //                 _ => false,
-        //             })
-        //     })
-        //     // Convert Map<Point, Vec<(GameObjectType, Pixel)> to Vec<Coin IDs>
-        //     .flat_map(|(_key, point_vec)| {
-        //         point_vec
-        //             .iter()
-        //             .filter(|(game_object_type, _)| match game_object_type {
-        //                 GameObjectType::Coin => true,
-        //                 _ => false,
-        //             })
-        //             .map(|(coin, _)| coin.id())
-        //     })
-        //     .collect::<HashSet<u32>>();
-        //
-        // coin_ids
-        //     .iter()
-        //     .for_each(|coin_id| self.collect_coin(coin_id.to_owned()));
+        for point in smaller_object {
+            if bigger_object.contains(point) {
+                return true;
+            }
+        }
+        false
     }
 
-    fn collect_coin(&mut self, coin_id: u32) {
+    fn collect_coin(&mut self, coin_id: &u32) {
         println!("Collected coin: {}", coin_id);
         let index_opt = self
             .coins
             .iter()
-            .position(|coin| coin.id() == coin_id)
+            .position(|coin| coin.id() == *coin_id)
             .expect(format!("Coin (ID: {}) not found", coin_id).as_str());
 
         self.coins.remove(index_opt);
@@ -218,23 +227,30 @@ impl GameState {
     }
 
     pub fn render(&self, canvas: &mut WindowCanvas) {
-        fn render_map(
-            map: &HashMap<Point, Vec<(GameObjectType, Pixel)>>,
-            canvas: &mut WindowCanvas,
-        ) {
+        fn render_map(map: &HashMap<Point, Pixel>, canvas: &mut WindowCanvas) {
             // Try multi-threading this?
-            map.iter().for_each(|(point, pixels)| {
-                pixels.iter().for_each(|pixel| {
-                    canvas.set_draw_color(pixel.1.color);
+            map.iter().for_each(|(point, pixel)| {
+                canvas.set_draw_color(pixel.color);
 
-                    let canvas_point = sdl2::rect::Point::new(point.x as i32, point.y as i32);
-                    canvas.draw_point(canvas_point).unwrap();
-                })
+                let canvas_point = sdl2::rect::Point::new(point.x as i32, point.y as i32);
+                canvas.draw_point(canvas_point).unwrap();
             });
         }
 
-        render_map(&self.boundary_map, canvas);
-        render_map(&self.map, canvas);
+        render_map(&self.boundary.sprite().pixels(), canvas);
+
+        let normalized_map = self
+            .map
+            .iter()
+            .map(|(point, pixels)| {
+                (
+                    point.to_owned(),
+                    pixels.to_owned().last().unwrap().1.clone(),
+                )
+            })
+            .collect::<HashMap<Point, Pixel>>();
+
+        render_map(&normalized_map, canvas);
     }
 
     fn clear_map(&mut self) {

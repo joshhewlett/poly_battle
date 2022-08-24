@@ -96,12 +96,12 @@ impl Player {
 }
 
 impl GameObject for Player {
-    fn id(&self) -> u32 {
-        self.id
-    }
-
     fn game_object_type(&self) -> &GameObjectType {
         &self.game_object_type
+    }
+
+    fn id(&self) -> u32 {
+        self.id
     }
 
     fn origin(&self) -> &Point {
