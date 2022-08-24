@@ -1,8 +1,9 @@
+use crate::game_util::calc_effective_points_for_sprite;
 use crate::structs::*;
 use crate::traits::GameObject;
 use sdl2::keyboard::Keycode::Hash;
 use sdl2::pixels::Color;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 static BOUNDARY_WIDTH: usize = 5;
 static BOUNDARY_COLOR: Color = Color::WHITE;
@@ -13,15 +14,21 @@ pub struct Boundary {
     game_object_type: GameObjectType,
     origin: Point,
     sprite: Sprite,
+    effective_sprite_points: HashSet<Point>,
 }
 
 impl Boundary {
     pub fn new(map_width: u32, map_height: u32) -> Self {
+        let origin = Point::new(0, 0);
+        let sprite = Sprite::new(Boundary::get_boundary_shape(map_width, map_height));
+        let effective_sprite_points = calc_effective_points_for_sprite(&sprite, &origin);
+
         Boundary {
             id: Boundary::get_id(),
             game_object_type: GameObjectType::Boundary,
-            origin: Point::new(0, 0),
-            sprite: Sprite::new(Boundary::get_boundary_shape(map_width, map_height)),
+            origin,
+            sprite,
+            effective_sprite_points,
         }
     }
 
@@ -88,12 +95,12 @@ impl Boundary {
 }
 
 impl GameObject for Boundary {
-    fn id(&self) -> u32 {
-        self.id
-    }
-
     fn game_object_type(&self) -> &GameObjectType {
         &self.game_object_type
+    }
+
+    fn id(&self) -> u32 {
+        self.id
     }
 
     fn origin(&self) -> &Point {
@@ -112,5 +119,7 @@ impl GameObject for Boundary {
         self.sprite.dimensions()
     }
 
-    fn tick(&mut self) {}
+    fn effective_points(&self) -> &HashSet<Point> {
+        &self.effective_sprite_points
+    }
 }

@@ -111,13 +111,10 @@ impl GameState {
     }
 
     fn handle_collisions_with_boundary(&mut self) {
-        // TODO: Implement momoization - Could shave off 0.8ms
-        let effective_player_points: HashSet<Point> = self.player.calc_effective_points();
-
         // Check for player and boundary collisions
-        for player_point in &effective_player_points {
+        for player_point in self.player.effective_points() {
             // If player collides with boundary, set the player's origin to it's previous position
-            if self.boundary.sprite().pixels().contains_key(&player_point) {
+            if self.boundary.sprite().pixels().contains_key(player_point) {
                 let prev_player_origin = self.player.prev_origin_unchecked();
                 self.player.set_origin(&prev_player_origin.clone());
                 break;
@@ -126,55 +123,24 @@ impl GameState {
     }
 
     fn handle_collisions_with_coins(&mut self) {
-        let effective_player_points: HashSet<Point> = self.player.calc_effective_points();
-
-        // Map of coin_id -> coin_pixels
-        let coins: HashMap<u32, HashSet<Point>> = self
+        let coins_to_collect: Vec<u32> = self
             .coins
             .iter()
-            .map(|coin| (coin.id(), coin.calc_effective_points()))
+            .filter(|coin| coin.has_collided_with(Box::new(&self.player)))
+            .map(|coin| coin.id())
             .collect();
 
-        coins
-            .iter()
-            .filter(|(coin_id, coin_pixels)| {
-                Self::has_collided(&effective_player_points, &coin_pixels)
-            })
-            .for_each(|(coin_id, _coin_pixels)| self.collect_coin(coin_id));
+        for coin_id in coins_to_collect {
+            self.collect_coin(coin_id)
+        }
     }
 
-    // TODO: Remove once momoization is implemented
-    fn has_collided(
-        object_1_effective_points: &HashSet<Point>,
-        object_2_effective_points: &HashSet<Point>,
-    ) -> bool {
-        let smaller_object: &HashSet<Point>;
-        let bigger_object: &HashSet<Point>;
-        match object_1_effective_points.len() < object_2_effective_points.len() {
-            true => {
-                smaller_object = &object_1_effective_points;
-                bigger_object = &object_2_effective_points;
-            }
-            false => {
-                bigger_object = &object_1_effective_points;
-                smaller_object = &object_2_effective_points;
-            }
-        }
-
-        for point in smaller_object {
-            if bigger_object.contains(point) {
-                return true;
-            }
-        }
-        false
-    }
-
-    fn collect_coin(&mut self, coin_id: &u32) {
+    fn collect_coin(&mut self, coin_id: u32) {
         println!("Collected coin: {}", coin_id);
         let index_opt = self
             .coins
             .iter()
-            .position(|coin| coin.id() == *coin_id)
+            .position(|coin| coin.id() == coin_id)
             .expect(format!("Coin (ID: {}) not found", coin_id).as_str());
 
         self.coins.remove(index_opt);

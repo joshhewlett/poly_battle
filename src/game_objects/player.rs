@@ -1,7 +1,8 @@
+use crate::game_util::calc_effective_points_for_sprite;
 use crate::structs::*;
 use crate::traits::*;
 use sdl2::pixels::Color;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 ///
 /// Player definition
@@ -14,6 +15,7 @@ pub struct Player {
     origin: Point,
     prev_origin: Option<Point>,
     sprite: Sprite,
+    effective_sprite_points: HashSet<Point>,
     speed: u32,
     current_direction: Direction,
     coin_count: u32,
@@ -21,12 +23,15 @@ pub struct Player {
 
 impl Player {
     pub fn new(origin: Point) -> Self {
+        let sprite = Sprite::new(Player::get_shape());
+        let effective_sprite_points = calc_effective_points_for_sprite(&sprite, &origin);
         Player {
             id: Player::get_id(),
             game_object_type: GameObjectType::Player,
             origin,
             prev_origin: None,
-            sprite: Sprite::new(Player::get_shape()),
+            sprite,
+            effective_sprite_points,
             current_direction: Direction::default(),
             speed: 5,
             coin_count: 0,
@@ -96,6 +101,10 @@ impl Player {
 }
 
 impl GameObject for Player {
+    fn tick(&mut self) {
+        self.apply_movement();
+    }
+
     fn game_object_type(&self) -> &GameObjectType {
         &self.game_object_type
     }
@@ -109,7 +118,12 @@ impl GameObject for Player {
     }
 
     fn set_origin(&mut self, new_origin: &Point) {
-        self.origin = new_origin.clone();
+        // Only set new origin and calc points if new_origin is not equal to the current origin
+        if &self.origin != new_origin {
+            self.origin = new_origin.clone();
+            self.effective_sprite_points =
+                calc_effective_points_for_sprite(&self.sprite(), &self.origin)
+        }
     }
 
     fn sprite(&self) -> &Sprite {
@@ -120,8 +134,8 @@ impl GameObject for Player {
         self.sprite.dimensions()
     }
 
-    fn tick(&mut self) {
-        self.apply_movement();
+    fn effective_points(&self) -> &HashSet<Point> {
+        &self.effective_sprite_points
     }
 }
 
