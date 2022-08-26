@@ -4,7 +4,7 @@ use std::collections::HashMap;
 ///
 /// Point definition
 ///
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub struct Point {
     pub x: u32,
     pub y: u32,
@@ -25,7 +25,7 @@ impl Default for Point {
 ///
 /// Direction definition
 ///
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum Direction {
     Up,
     Down,
@@ -42,7 +42,7 @@ impl Default for Direction {
 ///
 /// Pixel definition
 ///
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Pixel {
     pub color: Color, // TODO: Replace with custom implementation
 }
@@ -58,6 +58,7 @@ impl Pixel {
 ///
 /// Dimensions definition
 ///
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Dimensions {
     pub width: u32,
     pub height: u32,
@@ -72,6 +73,7 @@ impl Dimensions {
 ///
 /// Sprite definition
 ///
+#[derive(Debug)]
 pub struct Sprite {
     dimensions: Dimensions,
     sprite_data: HashMap<Point, Pixel>,
@@ -161,7 +163,7 @@ impl Default for Sprite {
 ///
 /// GameObjectType definition
 ///
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum GameObjectType {
     Player,
     Coin,

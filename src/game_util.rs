@@ -1,7 +1,7 @@
 use crate::structs::{Point, Sprite};
 use std::collections::HashSet;
 
-pub fn calc_effective_points_for_sprite(sprite: &Sprite, origin: &Point) -> HashSet<Point> {
+pub fn calc_effective_points_for_sprite(sprite: &Sprite, origin: Point) -> HashSet<Point> {
     sprite
         .pixels()
         .iter()

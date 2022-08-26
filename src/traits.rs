@@ -10,15 +10,15 @@ pub trait GameObject {
         // Do nothing by default
     }
 
-    fn game_object_type(&self) -> &GameObjectType;
+    fn game_object_type(&self) -> GameObjectType;
     fn id(&self) -> u32;
-    fn origin(&self) -> &Point;
-    fn set_origin(&mut self, new_origin: &Point);
+    fn origin(&self) -> Point;
+    fn set_origin(&mut self, new_origin: Point);
     fn sprite(&self) -> &Sprite;
-    fn sprite_dimensions(&self) -> &Dimensions;
+    fn sprite_dimensions(&self) -> Dimensions;
     fn effective_points(&self) -> &HashSet<Point>;
 
-    fn identity(&self) -> (&GameObjectType, u32) {
+    fn identity(&self) -> (GameObjectType, u32) {
         (self.game_object_type(), self.id())
     }
 
@@ -31,11 +31,11 @@ pub trait GameObject {
 /// Movable definition
 ///
 pub trait Movable: GameObject {
-    fn direction(&self) -> &Direction;
+    fn direction(&self) -> Direction;
     fn change_direction(&mut self, new_direction: Direction);
     fn speed(&self) -> u32;
-    fn prev_origin(&self) -> Option<&Point>;
-    fn set_prev_origin(&mut self, current_origin: &Point);
+    fn prev_origin(&self) -> Option<Point>;
+    fn set_prev_origin(&mut self, current_origin: Point);
 
     fn apply_movement(&mut self) {
         let current_origin = self.origin().clone();
@@ -57,11 +57,11 @@ pub trait Movable: GameObject {
             }
         }
 
-        self.set_prev_origin(&current_origin);
-        self.set_origin(&new_origin);
+        self.set_prev_origin(current_origin);
+        self.set_origin(new_origin);
     }
 
-    fn prev_origin_unchecked(&self) -> &Point {
+    fn prev_origin_unchecked(&self) -> Point {
         self.prev_origin().expect("Expected prev_origin to exist")
     }
 }

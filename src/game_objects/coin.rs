@@ -19,7 +19,7 @@ pub struct Coin {
 impl Coin {
     pub fn new(origin: Point) -> Self {
         let sprite = Sprite::default();
-        let effective_sprite_points = calc_effective_points_for_sprite(&sprite, &origin);
+        let effective_sprite_points = calc_effective_points_for_sprite(&sprite, origin);
 
         Self {
             id: Coin::get_id(),
@@ -42,28 +42,28 @@ impl Coin {
 }
 
 impl GameObject for Coin {
-    fn game_object_type(&self) -> &GameObjectType {
-        &self.game_object_type
+    fn game_object_type(&self) -> GameObjectType {
+        self.game_object_type
     }
 
     fn id(&self) -> u32 {
         self.id
     }
 
-    fn origin(&self) -> &Point {
-        &self.origin
+    fn origin(&self) -> Point {
+        self.origin
     }
 
-    fn set_origin(&mut self, new_origin: &Point) {
-        self.origin = new_origin.clone();
+    fn set_origin(&mut self, new_origin: Point) {
+        self.origin = new_origin;
     }
 
     fn sprite(&self) -> &Sprite {
         &self.sprite
     }
 
-    fn sprite_dimensions(&self) -> &Dimensions {
-        self.sprite.dimensions()
+    fn sprite_dimensions(&self) -> Dimensions {
+        *self.sprite.dimensions()
     }
 
     fn effective_points(&self) -> &HashSet<Point> {

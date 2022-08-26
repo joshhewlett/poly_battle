@@ -116,7 +116,7 @@ impl GameState {
             // If player collides with boundary, set the player's origin to it's previous position
             if self.boundary.sprite().pixels().contains_key(player_point) {
                 let prev_player_origin = self.player.prev_origin_unchecked();
-                self.player.set_origin(&prev_player_origin.clone());
+                self.player.set_origin(prev_player_origin);
                 break;
             }
         }
@@ -166,9 +166,9 @@ impl GameState {
     ) -> HashMap<Point, Vec<(GameObjectType, Pixel)>> {
         let mut map: HashMap<Point, Vec<(GameObjectType, Pixel)>> = HashMap::new();
         for drawable in drawables {
-            let entity_position: &Point = drawable.origin();
+            let entity_position: Point = drawable.origin();
             let entity_shape: &Sprite = drawable.sprite();
-            let entity_type: &GameObjectType = drawable.game_object_type();
+            let entity_type: GameObjectType = drawable.game_object_type();
 
             entity_shape
                 .pixels()
@@ -180,12 +180,12 @@ impl GameState {
                     );
 
                     if !map.contains_key(&absolute_pos) {
-                        map.insert(absolute_pos.clone(), Vec::new());
+                        map.insert(absolute_pos, Vec::new());
                     }
 
                     map.get_mut(&absolute_pos)
                         .unwrap()
-                        .push((entity_type.clone(), Pixel::new(&pixel.color)));
+                        .push((entity_type, Pixel::new(&pixel.color)));
                 })
         }
 

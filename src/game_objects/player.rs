@@ -24,7 +24,7 @@ pub struct Player {
 impl Player {
     pub fn new(origin: Point) -> Self {
         let sprite = Sprite::new(Player::get_shape());
-        let effective_sprite_points = calc_effective_points_for_sprite(&sprite, &origin);
+        let effective_sprite_points = calc_effective_points_for_sprite(&sprite, origin);
         Player {
             id: Player::get_id(),
             game_object_type: GameObjectType::Player,
@@ -105,24 +105,24 @@ impl GameObject for Player {
         self.apply_movement();
     }
 
-    fn game_object_type(&self) -> &GameObjectType {
-        &self.game_object_type
+    fn game_object_type(&self) -> GameObjectType {
+        self.game_object_type
     }
 
     fn id(&self) -> u32 {
         self.id
     }
 
-    fn origin(&self) -> &Point {
-        &self.origin
+    fn origin(&self) -> Point {
+        self.origin
     }
 
-    fn set_origin(&mut self, new_origin: &Point) {
+    fn set_origin(&mut self, new_origin: Point) {
         // Only set new origin and calc points if new_origin is not equal to the current origin
-        if &self.origin != new_origin {
+        if self.origin != new_origin {
             self.origin = new_origin.clone();
             self.effective_sprite_points =
-                calc_effective_points_for_sprite(&self.sprite(), &self.origin)
+                calc_effective_points_for_sprite(&self.sprite(), self.origin)
         }
     }
 
@@ -130,8 +130,8 @@ impl GameObject for Player {
         &self.sprite
     }
 
-    fn sprite_dimensions(&self) -> &Dimensions {
-        self.sprite.dimensions()
+    fn sprite_dimensions(&self) -> Dimensions {
+        *self.sprite.dimensions()
     }
 
     fn effective_points(&self) -> &HashSet<Point> {
@@ -146,8 +146,8 @@ impl Default for Player {
 }
 
 impl Movable for Player {
-    fn direction(&self) -> &Direction {
-        &self.current_direction
+    fn direction(&self) -> Direction {
+        self.current_direction
     }
 
     fn change_direction(&mut self, new_direction: Direction) {
@@ -158,14 +158,14 @@ impl Movable for Player {
         self.speed
     }
 
-    fn prev_origin(&self) -> Option<&Point> {
-        match &self.prev_origin {
+    fn prev_origin(&self) -> Option<Point> {
+        match self.prev_origin {
             Some(point) => Some(point),
             None => None,
         }
     }
 
-    fn set_prev_origin(&mut self, origin: &Point) {
-        self.prev_origin = Some(origin.clone());
+    fn set_prev_origin(&mut self, origin: Point) {
+        self.prev_origin = Some(origin);
     }
 }
