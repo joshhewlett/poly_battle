@@ -1,12 +1,18 @@
-use crate::structs::{Point, Sprite};
-use std::collections::HashSet;
+use crate::structs::{Pixel, Point, Sprite};
+use std::collections::{HashMap, HashSet};
 
-pub fn calc_effective_points_for_sprite(sprite: &Sprite, origin: Point) -> HashSet<Point> {
-    sprite
+pub fn calc_effective_sprite_pixels(
+    sprite: &Sprite,
+    origin: Point,
+) -> (HashMap<Point, Pixel>, HashSet<Point>) {
+    let effective_pixels: HashMap<Point, Pixel> = sprite
         .pixels()
         .iter()
-        .map(|(point, _pixel)| Point::new(origin.x + point.x, origin.y + point.y))
-        .collect()
+        .map(|(point, pixel)| (Point::new(origin.x + point.x, origin.y + point.y), *pixel))
+        .collect();
+
+    let effective_points = effective_pixels.keys().copied().collect::<HashSet<Point>>();
+    (effective_pixels, effective_points)
 }
 
 pub fn has_collided(

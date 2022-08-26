@@ -25,20 +25,17 @@ impl GameMapDimensions {
     }
 }
 
+///
 /// Game State definition
 ///
-/// map_width: Width of the map
-/// map_height: Height of the map
-/// map: Current state of the game map
-///
-/// game_objects: Vec<GameObject>
-/// collision_rules: Vec<CollisionRule>
-///
 pub struct GameState {
+    // Dimensions of the map
     map_dimensions: GameMapDimensions,
-    boundary: Boundary,
-    map: HashMap<Point, Vec<(GameObjectType, Pixel)>>,
+    // Player object
     player: Player,
+    // Game world boundary
+    boundary: Boundary,
+    // Coins that exist in the world
     coins: Vec<Coin>,
 }
 
@@ -60,14 +57,13 @@ impl GameState {
         Self {
             map_dimensions,
             boundary,
-            map: HashMap::new(),
             player,
             coins,
         }
     }
 
     pub fn tick(&mut self, event: Option<PlayerInput>) {
-        //////// Handle Input //////
+        //////// Input //////
         if event.is_some() {
             match event.unwrap() {
                 PlayerInput::KeyDown(key) => match key {
@@ -97,9 +93,7 @@ impl GameState {
         // If player collides with coin, "collect" coin
         self.handle_collisions_with_coins();
 
-        //// Convert to map
-        self.update_game_state();
-
+        //// Additional events
         // Spawn coin if no other coin exists
         if self.coins.is_empty() {
             let mut rng = rand::thread_rng();
@@ -108,6 +102,22 @@ impl GameState {
 
             self.coins.push(Coin::new(Point::new(x, y)));
         }
+    }
+
+    pub fn render(&self, canvas: &mut WindowCanvas) {
+        fn render_map(pixels: &HashMap<Point, Pixel>, canvas: &mut WindowCanvas) {
+            // Try multi-threading this?
+            for (point, pixel) in pixels {
+                canvas.set_draw_color(pixel.color);
+
+                let canvas_point = sdl2::rect::Point::new(point.x as i32, point.y as i32);
+                canvas.draw_point(canvas_point).unwrap();
+            }
+        }
+
+        self.all_game_objects()
+            .iter()
+            .for_each(|obj| render_map(obj.effective_pixels(), canvas))
     }
 
     fn handle_collisions_with_boundary(&mut self) {
@@ -149,77 +159,14 @@ impl GameState {
         println!("Player coin count: {}", self.player.coin_count());
     }
 
-    fn update_game_state(&mut self) {
-        self.clear_map();
-
-        // Last element in the drawables map will be at the forefront. Technically, the player
-        // should be added last, but it's not an issue right now
-        // let mut drawables: Vec<&dyn Drawable> = vec![&self.boundaries[0], &self.player];
-        let mut drawables: Vec<&dyn GameObject> = vec![&self.player];
-        self.coins.iter().for_each(|c| drawables.push(c));
-
-        self.map = GameState::convert_drawables_to_pixel_map(&drawables);
-    }
-
-    fn convert_drawables_to_pixel_map(
-        drawables: &Vec<&dyn GameObject>,
-    ) -> HashMap<Point, Vec<(GameObjectType, Pixel)>> {
-        let mut map: HashMap<Point, Vec<(GameObjectType, Pixel)>> = HashMap::new();
-        for drawable in drawables {
-            let entity_position: Point = drawable.origin();
-            let entity_shape: &Sprite = drawable.sprite();
-            let entity_type: GameObjectType = drawable.game_object_type();
-
-            entity_shape
-                .pixels()
-                .iter()
-                .for_each(|(pixel_location, pixel)| {
-                    let absolute_pos = Point::new(
-                        entity_position.x + pixel_location.x,
-                        entity_position.y + pixel_location.y,
-                    );
-
-                    if !map.contains_key(&absolute_pos) {
-                        map.insert(absolute_pos, Vec::new());
-                    }
-
-                    map.get_mut(&absolute_pos)
-                        .unwrap()
-                        .push((entity_type, Pixel::new(&pixel.color)));
-                })
-        }
-
-        map
-    }
-
-    pub fn render(&self, canvas: &mut WindowCanvas) {
-        fn render_map(map: &HashMap<Point, Pixel>, canvas: &mut WindowCanvas) {
-            // Try multi-threading this?
-            map.iter().for_each(|(point, pixel)| {
-                canvas.set_draw_color(pixel.color);
-
-                let canvas_point = sdl2::rect::Point::new(point.x as i32, point.y as i32);
-                canvas.draw_point(canvas_point).unwrap();
-            });
-        }
-
-        render_map(&self.boundary.sprite().pixels(), canvas);
-
-        let normalized_map = self
-            .map
+    fn all_game_objects(&self) -> Vec<&dyn GameObject> {
+        let mut all_game_objects: Vec<&dyn GameObject> = vec![&self.boundary, &self.player];
+        self.coins
             .iter()
-            .map(|(point, pixels)| {
-                (
-                    point.to_owned(),
-                    pixels.to_owned().last().unwrap().1.clone(),
-                )
-            })
-            .collect::<HashMap<Point, Pixel>>();
+            .for_each(|coin| all_game_objects.push(coin));
 
-        render_map(&normalized_map, canvas);
-    }
+        // Sort game objects by background -> foreground
 
-    fn clear_map(&mut self) {
-        self.map.clear();
+        all_game_objects
     }
 }

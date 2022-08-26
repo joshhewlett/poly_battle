@@ -17,6 +17,7 @@ pub trait GameObject {
     fn sprite(&self) -> &Sprite;
     fn sprite_dimensions(&self) -> Dimensions;
     fn effective_points(&self) -> &HashSet<Point>;
+    fn effective_pixels(&self) -> &HashMap<Point, Pixel>;
 
     fn identity(&self) -> (GameObjectType, u32) {
         (self.game_object_type(), self.id())

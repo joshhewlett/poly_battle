@@ -1,4 +1,4 @@
-use crate::game_util::calc_effective_points_for_sprite;
+use crate::game_util::calc_effective_sprite_pixels;
 use crate::structs::*;
 use crate::traits::GameObject;
 use sdl2::keyboard::Keycode::Hash;
@@ -14,6 +14,7 @@ pub struct Boundary {
     game_object_type: GameObjectType,
     origin: Point,
     sprite: Sprite,
+    effective_sprite_pixels: HashMap<Point, Pixel>,
     effective_sprite_points: HashSet<Point>,
 }
 
@@ -21,13 +22,15 @@ impl Boundary {
     pub fn new(map_width: u32, map_height: u32) -> Self {
         let origin = Point::new(0, 0);
         let sprite = Sprite::new(Boundary::get_boundary_shape(map_width, map_height));
-        let effective_sprite_points = calc_effective_points_for_sprite(&sprite, origin);
+        let (effective_sprite_pixels, effective_sprite_points) =
+            calc_effective_sprite_pixels(&sprite, origin);
 
         Boundary {
             id: Boundary::get_id(),
             game_object_type: GameObjectType::Boundary,
             origin,
             sprite,
+            effective_sprite_pixels,
             effective_sprite_points,
         }
     }
@@ -117,6 +120,10 @@ impl GameObject for Boundary {
 
     fn sprite_dimensions(&self) -> Dimensions {
         *self.sprite.dimensions()
+    }
+
+    fn effective_pixels(&self) -> &HashMap<Point, Pixel> {
+        &self.effective_sprite_pixels
     }
 
     fn effective_points(&self) -> &HashSet<Point> {

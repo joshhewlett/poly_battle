@@ -1,4 +1,4 @@
-use crate::game_util::calc_effective_points_for_sprite;
+use crate::game_util::calc_effective_sprite_pixels;
 use crate::structs::*;
 use crate::traits::*;
 use sdl2::pixels::Color;
@@ -15,6 +15,7 @@ pub struct Player {
     origin: Point,
     prev_origin: Option<Point>,
     sprite: Sprite,
+    effective_sprite_pixels: HashMap<Point, Pixel>,
     effective_sprite_points: HashSet<Point>,
     speed: u32,
     current_direction: Direction,
@@ -24,13 +25,15 @@ pub struct Player {
 impl Player {
     pub fn new(origin: Point) -> Self {
         let sprite = Sprite::new(Player::get_shape());
-        let effective_sprite_points = calc_effective_points_for_sprite(&sprite, origin);
+        let (effective_sprite_pixels, effective_sprite_points) =
+            calc_effective_sprite_pixels(&sprite, origin);
         Player {
             id: Player::get_id(),
             game_object_type: GameObjectType::Player,
             origin,
             prev_origin: None,
             sprite,
+            effective_sprite_pixels,
             effective_sprite_points,
             current_direction: Direction::default(),
             speed: 5,
@@ -121,8 +124,11 @@ impl GameObject for Player {
         // Only set new origin and calc points if new_origin is not equal to the current origin
         if self.origin != new_origin {
             self.origin = new_origin.clone();
-            self.effective_sprite_points =
-                calc_effective_points_for_sprite(&self.sprite(), self.origin)
+
+            let (effective_sprite_pixels, effective_sprite_points) =
+                calc_effective_sprite_pixels(&self.sprite(), self.origin);
+            self.effective_sprite_pixels = effective_sprite_pixels;
+            self.effective_sprite_points = effective_sprite_points;
         }
     }
 
@@ -132,6 +138,10 @@ impl GameObject for Player {
 
     fn sprite_dimensions(&self) -> Dimensions {
         *self.sprite.dimensions()
+    }
+
+    fn effective_pixels(&self) -> &HashMap<Point, Pixel> {
+        &self.effective_sprite_pixels
     }
 
     fn effective_points(&self) -> &HashSet<Point> {

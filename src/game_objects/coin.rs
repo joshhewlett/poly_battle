@@ -1,7 +1,7 @@
-use crate::game_util::calc_effective_points_for_sprite;
+use crate::game_util::calc_effective_sprite_pixels;
 use crate::structs::*;
 use crate::traits::*;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 ///
 /// Coin definition
@@ -13,19 +13,22 @@ pub struct Coin {
     game_object_type: GameObjectType,
     origin: Point,
     sprite: Sprite,
+    effective_sprite_pixels: HashMap<Point, Pixel>,
     effective_sprite_points: HashSet<Point>,
 }
 
 impl Coin {
     pub fn new(origin: Point) -> Self {
         let sprite = Sprite::default();
-        let effective_sprite_points = calc_effective_points_for_sprite(&sprite, origin);
+        let (effective_sprite_pixels, effective_sprite_points) =
+            calc_effective_sprite_pixels(&sprite, origin);
 
         Self {
             id: Coin::get_id(),
             game_object_type: GameObjectType::Coin,
             origin,
             sprite: Sprite::default(),
+            effective_sprite_pixels,
             effective_sprite_points,
         }
     }
@@ -68,6 +71,10 @@ impl GameObject for Coin {
 
     fn effective_points(&self) -> &HashSet<Point> {
         &self.effective_sprite_points
+    }
+
+    fn effective_pixels(&self) -> &HashMap<Point, Pixel> {
+        &self.effective_sprite_pixels
     }
 }
 
