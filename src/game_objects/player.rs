@@ -7,7 +7,7 @@ use crate::util::calc_effective_sprite_pixels;
 ///
 /// Player definition
 ///
-pub const PLAYER_SPRITE_FILENAME: &'static str = "player_sprite.png";
+pub const PLAYER_SPRITE_FILENAME: &'static str = "player_sprite_2.png";
 static mut ID_COUNTER: u32 = 0;
 
 pub struct Player {
@@ -50,45 +50,6 @@ impl Player {
         }
 
         id
-    }
-
-    fn get_shape() -> HashMap<Point, Pixel> {
-        let row = vec![
-            Some(Color::RED),
-            Some(Color::RED),
-            Some(Color::RED),
-            Some(Color::RED),
-            Some(Color::RED),
-            Some(Color::RED),
-            Some(Color::RED),
-            Some(Color::RED),
-        ];
-
-        let mut shape: Vec<Vec<Option<Color>>> = Vec::new();
-        for _ in 0..8 {
-            shape.push(row.clone());
-        }
-
-        assert!(
-            shape.len() < u32::MAX as usize,
-            "Shape height larger than expected"
-        );
-        assert!(
-            shape[0].len() < u32::MAX as usize,
-            "Shape width larger than expected"
-        );
-
-        let mut pixels: HashMap<Point, Pixel> = HashMap::new();
-        for y in 0..shape.len() {
-            for x in 0..shape[y].len() {
-                if let Some(color) = shape[y][x] {
-                    let location = Point::new(x as u32, y as u32);
-                    pixels.insert(location.clone(), Pixel::new(color));
-                }
-            }
-        }
-
-        pixels
     }
 
     pub fn increment_coin_count(&mut self) {

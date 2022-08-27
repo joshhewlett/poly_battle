@@ -7,6 +7,7 @@ use crate::util::calc_effective_sprite_pixels;
 ///
 /// Coin definition
 ///
+pub const COIN_SPRITE_FILENAME: &'static str = "coin_sprite.png";
 static mut ID_COUNTER: u32 = 0;
 
 pub struct Coin {
@@ -20,7 +21,7 @@ pub struct Coin {
 
 impl Coin {
     pub fn new(origin: Point) -> Self {
-        let sprite = Sprite::default();
+        let sprite = Sprite::new_from_file(COIN_SPRITE_FILENAME);
         let (effective_sprite_pixels, effective_sprite_points) =
             calc_effective_sprite_pixels(&sprite, origin);
 
