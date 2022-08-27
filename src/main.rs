@@ -1,12 +1,12 @@
 use std::time::Duration;
 
-use poly_battle::performance_tracking::PerformanceTracker;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 
-use poly_battle::game_state::*;
-use poly_battle::player_input::*;
+use poly_battle::game::*;
+use poly_battle::structs::*;
+use poly_battle::util::*;
 
 static GAME_TITLE: &'static str = "PolyBattle";
 static WINDOW_WIDTH: u32 = 800;
@@ -36,7 +36,7 @@ pub fn start() {
     let mut canvas = window.into_canvas().present_vsync().build().unwrap();
     let mut event_pump = sdl_context.event_pump().unwrap();
 
-    let mut game_state = GameState::init(WINDOW_WIDTH, WINDOW_HEIGHT);
+    let mut game_state = Game::init(WINDOW_WIDTH, WINDOW_HEIGHT);
 
     let fps = 60;
     let frame_duration = 1_000_000_000u32 / fps;

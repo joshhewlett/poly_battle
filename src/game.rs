@@ -1,6 +1,4 @@
 use crate::game_objects::*;
-use crate::performance_tracking::PerformanceTracker;
-use crate::player_input::{Key, PlayerInput};
 use crate::structs::*;
 use crate::traits::*;
 use rand::Rng;
@@ -28,7 +26,7 @@ impl GameMapDimensions {
 ///
 /// Game State definition
 ///
-pub struct GameState {
+pub struct Game {
     // Dimensions of the map
     map_dimensions: GameMapDimensions,
     // Player object
@@ -39,7 +37,7 @@ pub struct GameState {
     coins: Vec<Coin>,
 }
 
-impl GameState {
+impl Game {
     pub fn init(map_width: u32, map_height: u32) -> Self {
         // Create map dimensions
         let map_dimensions = GameMapDimensions::new(map_width, map_height);
@@ -109,7 +107,9 @@ impl GameState {
             // Try multi-threading this?
             for (point, pixel) in pixels {
                 let color = pixel.color;
-                canvas.set_draw_color(sdl2::pixels::Color::RGBA(color.r, color.g, color.b, color.a));
+                canvas.set_draw_color(sdl2::pixels::Color::RGBA(
+                    color.r, color.g, color.b, color.a,
+                ));
 
                 let canvas_point = sdl2::rect::Point::new(point.x as i32, point.y as i32);
                 canvas.draw_point(canvas_point).unwrap();

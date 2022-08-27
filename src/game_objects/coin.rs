@@ -1,7 +1,8 @@
-use crate::game_util::calc_effective_sprite_pixels;
+use std::collections::{HashMap, HashSet};
+
 use crate::structs::*;
 use crate::traits::*;
-use std::collections::{HashMap, HashSet};
+use crate::util::calc_effective_sprite_pixels;
 
 ///
 /// Coin definition

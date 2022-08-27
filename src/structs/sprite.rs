@@ -1,51 +1,27 @@
-use std::collections::HashMap;
-use crate::structs::{Dimensions, Pixel, Point};
+use crate::structs::{Color, Pixel, Point};
 use image::io::Reader as ImageReader;
 use image::{GenericImageView, Pixel as ImagePixel};
+use std::collections::HashMap;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct Color {
-    pub r: u8,
-    pub g: u8,
-    pub b: u8,
-    pub a: u8,
-}
-
-impl Color {
-    pub const fn RGB(r: u8, g: u8, b: u8) -> Self {
-        Self {
-            r,
-            g,
-            b,
-            a: 255,
-        }
-    }
-
-    pub const fn RGBA(r: u8, g: u8, b: u8, a: u8) -> Self {
-        Self {
-            r,
-            g,
-            b,
-            a,
-        }
-    }
-
-    pub const WHITE: Color = Color::RGB(255, 255, 255);
-    pub const BLACK: Color = Color::RGB(0, 0, 0);
-    pub const RED: Color = Color::RGB(255, 0, 0);
-    pub const GREEN: Color = Color::RGB(0, 255, 0);
-    pub const BLUE: Color = Color::RGB(0, 0, 255);
-}
+pub const SPRITE_RESOURCE_DIR: &'static str = "resources/sprites/";
 
 ///
-/// Sprite definition
+/// Structs
 ///
 #[derive(Debug)]
 pub struct Sprite {
     dimensions: Dimensions,
     sprite_data: HashMap<Point, Pixel>,
 }
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub struct Dimensions {
+    pub width: u32,
+    pub height: u32,
+}
 
+///
+/// Sprite implementation
+///
 impl Sprite {
     pub fn new(sprite_data: HashMap<Point, Pixel>) -> Self {
         let mut x_max: u32 = 0;
@@ -68,21 +44,22 @@ impl Sprite {
     }
 
     pub fn new_from_file(file_name: &str) -> Self {
-        let img = ImageReader::open(file_name).unwrap().decode().unwrap();
+        let img = ImageReader::open(SPRITE_RESOURCE_DIR.to_owned() + file_name)
+            .unwrap()
+            .decode()
+            .unwrap();
 
         let img_width = img.width();
         let img_height = img.height();
 
         let mut sprite_data: HashMap<Point, Pixel> = HashMap::new();
         img.pixels()
-            .filter(|(_x, _y, (rgba))|
-                rgba[0] != 0 ||
-                    rgba[1] != 0 ||
-                    rgba[2] != 0 ||
-                    rgba[3] != 0
-            )
+            .filter(|(_x, _y, (rgba))| rgba[0] != 0 || rgba[1] != 0 || rgba[2] != 0 || rgba[3] != 0)
             .for_each(|(x, y, (rgba))| {
-                sprite_data.insert(Point::new(x, y), Pixel::new(Color::RGBA(rgba[0], rgba[1], rgba[2], rgba[3])));
+                sprite_data.insert(
+                    Point::new(x, y),
+                    Pixel::new(Color::RGBA(rgba[0], rgba[1], rgba[2], rgba[3])),
+                );
             });
 
         Self {
@@ -144,5 +121,14 @@ impl Sprite {
 impl Default for Sprite {
     fn default() -> Self {
         Sprite::new(Sprite::build_default_sprite())
+    }
+}
+
+///
+/// Dimensions implementation
+///
+impl Dimensions {
+    pub fn new(width: u32, height: u32) -> Self {
+        Dimensions { width, height }
     }
 }

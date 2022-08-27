@@ -1,11 +1,13 @@
-use crate::game_util::calc_effective_sprite_pixels;
+use std::collections::{HashMap, HashSet};
+
 use crate::structs::*;
 use crate::traits::*;
-use std::collections::{HashMap, HashSet};
+use crate::util::calc_effective_sprite_pixels;
 
 ///
 /// Player definition
 ///
+pub const PLAYER_SPRITE_FILENAME: &'static str = "player_sprite.png";
 static mut ID_COUNTER: u32 = 0;
 
 pub struct Player {
@@ -23,7 +25,7 @@ pub struct Player {
 
 impl Player {
     pub fn new(origin: Point) -> Self {
-        let sprite = Sprite::new_from_file("resources/sprites/player_sprite.png");
+        let sprite = Sprite::new_from_file(PLAYER_SPRITE_FILENAME);
         let (effective_sprite_pixels, effective_sprite_points) =
             calc_effective_sprite_pixels(&sprite, origin);
         Player {

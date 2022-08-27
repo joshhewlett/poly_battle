@@ -1,8 +1,8 @@
-use crate::game_util::calc_effective_sprite_pixels;
+use std::collections::{HashMap, HashSet};
+
 use crate::structs::*;
 use crate::traits::GameObject;
-use sdl2::keyboard::Keycode::Hash;
-use std::collections::{HashMap, HashSet};
+use crate::util::calc_effective_sprite_pixels;
 
 static BOUNDARY_WIDTH: usize = 5;
 static BOUNDARY_COLOR: Color = Color::WHITE;
