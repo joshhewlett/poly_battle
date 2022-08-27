@@ -1,7 +1,6 @@
 use crate::game_util::calc_effective_sprite_pixels;
 use crate::structs::*;
 use crate::traits::*;
-use sdl2::pixels::Color;
 use std::collections::{HashMap, HashSet};
 
 ///
@@ -24,7 +23,7 @@ pub struct Player {
 
 impl Player {
     pub fn new(origin: Point) -> Self {
-        let sprite = Sprite::new(Player::get_shape());
+        let sprite = Sprite::new_from_file("resources/sprites/player_sprite.png");
         let (effective_sprite_pixels, effective_sprite_points) =
             calc_effective_sprite_pixels(&sprite, origin);
         Player {
@@ -82,7 +81,7 @@ impl Player {
             for x in 0..shape[y].len() {
                 if let Some(color) = shape[y][x] {
                     let location = Point::new(x as u32, y as u32);
-                    pixels.insert(location.clone(), Pixel::new(&color));
+                    pixels.insert(location.clone(), Pixel::new(color));
                 }
             }
         }

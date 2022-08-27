@@ -108,7 +108,8 @@ impl GameState {
         fn render_map(pixels: &HashMap<Point, Pixel>, canvas: &mut WindowCanvas) {
             // Try multi-threading this?
             for (point, pixel) in pixels {
-                canvas.set_draw_color(pixel.color);
+                let color = pixel.color;
+                canvas.set_draw_color(sdl2::pixels::Color::RGBA(color.r, color.g, color.b, color.a));
 
                 let canvas_point = sdl2::rect::Point::new(point.x as i32, point.y as i32);
                 canvas.draw_point(canvas_point).unwrap();

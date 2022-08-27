@@ -2,7 +2,6 @@ use crate::game_util::calc_effective_sprite_pixels;
 use crate::structs::*;
 use crate::traits::GameObject;
 use sdl2::keyboard::Keycode::Hash;
-use sdl2::pixels::Color;
 use std::collections::{HashMap, HashSet};
 
 static BOUNDARY_WIDTH: usize = 5;
@@ -88,7 +87,7 @@ impl Boundary {
                 let color = shape_data_grid[y][x];
                 if color.is_some() {
                     let location = Point::new(x as u32, y as u32);
-                    pixels.insert(location.clone(), Pixel::new(&color.unwrap()));
+                    pixels.insert(location.clone(), Pixel::new(color.unwrap()));
                 }
             }
         }
