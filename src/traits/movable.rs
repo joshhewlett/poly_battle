@@ -1,4 +1,4 @@
-use crate::structs::{Direction, Point};
+use crate::structs::{Direction, Point, Rotation};
 use crate::traits::GameObject;
 
 ///
@@ -7,6 +7,8 @@ use crate::traits::GameObject;
 pub trait Movable: GameObject {
     fn direction(&self) -> Direction;
     fn change_direction(&mut self, new_direction: Direction);
+    fn rotation(&self) -> Rotation;
+    fn change_rotation(&mut self, new_rotation: Rotation);
     fn speed(&self) -> u32;
     fn prev_origin(&self) -> Option<Point>;
     fn set_prev_origin(&mut self, current_origin: Point);
@@ -19,19 +21,22 @@ pub trait Movable: GameObject {
         match self.direction() {
             Direction::Up => {
                 new_origin = Point::new(current_origin.x, current_origin.y - speed);
+                self.change_rotation(Rotation::None);
             }
             Direction::Down => {
                 new_origin = Point::new(current_origin.x, current_origin.y + speed);
+                self.change_rotation(Rotation::UpsideDown);
             }
             Direction::Left => {
                 new_origin = Point::new(current_origin.x - speed, current_origin.y);
+                self.change_rotation(Rotation::Left);
             }
             Direction::Right => {
                 new_origin = Point::new(current_origin.x + speed, current_origin.y);
+                self.change_rotation(Rotation::Right);
             }
         }
 
-        self.set_prev_origin(current_origin);
         self.set_origin(new_origin);
     }
 

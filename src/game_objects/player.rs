@@ -20,6 +20,7 @@ pub struct Player {
     effective_sprite_points: HashSet<Point>,
     speed: u32,
     current_direction: Direction,
+    current_rotation: Rotation,
     coin_count: u32,
 }
 
@@ -36,7 +37,8 @@ impl Player {
             sprite,
             effective_sprite_pixels,
             effective_sprite_points,
-            current_direction: Direction::default(),
+            current_direction: Direction::Up,
+            current_rotation: Rotation::None,
             speed: 5,
             coin_count: 0,
         }
@@ -67,7 +69,25 @@ impl Player {
 
 impl GameObject for Player {
     fn tick(&mut self) {
+        let prev_rotation = self.current_rotation;
+
         self.apply_movement();
+
+        let mut something_changed = false;
+        if self.origin != self.prev_origin_unchecked() {
+            something_changed = true;
+        }
+        if self.current_rotation != prev_rotation {
+            something_changed = true;
+            self.sprite.rotate_sprite(self.current_rotation);
+        }
+
+        if something_changed {
+            let (effective_sprite_pixels, effective_sprite_points) =
+                calc_effective_sprite_pixels(&self.sprite(), self.origin);
+            self.effective_sprite_pixels = effective_sprite_pixels;
+            self.effective_sprite_points = effective_sprite_points;
+        }
     }
 
     fn game_object_type(&self) -> GameObjectType {
@@ -83,15 +103,8 @@ impl GameObject for Player {
     }
 
     fn set_origin(&mut self, new_origin: Point) {
-        // Only set new origin and calc points if new_origin is not equal to the current origin
-        if self.origin != new_origin {
-            self.origin = new_origin.clone();
-
-            let (effective_sprite_pixels, effective_sprite_points) =
-                calc_effective_sprite_pixels(&self.sprite(), self.origin);
-            self.effective_sprite_pixels = effective_sprite_pixels;
-            self.effective_sprite_points = effective_sprite_points;
-        }
+        self.set_prev_origin(self.origin);
+        self.origin = new_origin;
     }
 
     fn sprite(&self) -> &Sprite {
@@ -124,6 +137,14 @@ impl Movable for Player {
 
     fn change_direction(&mut self, new_direction: Direction) {
         self.current_direction = new_direction;
+    }
+
+    fn rotation(&self) -> Rotation {
+        self.current_rotation
+    }
+
+    fn change_rotation(&mut self, new_rotation: Rotation) {
+        self.current_rotation = new_rotation;
     }
 
     fn speed(&self) -> u32 {

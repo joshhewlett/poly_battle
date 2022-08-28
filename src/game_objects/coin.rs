@@ -29,7 +29,7 @@ impl Coin {
             id: Coin::get_id(),
             game_object_type: GameObjectType::Coin,
             origin,
-            sprite: Sprite::default(),
+            sprite,
             effective_sprite_pixels,
             effective_sprite_points,
         }
