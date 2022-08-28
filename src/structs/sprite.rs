@@ -81,8 +81,13 @@ impl Sprite {
     }
 
     pub fn rotate_sprite(&mut self, rotation: Rotation) {
-        let center_width: i64 = (self.dimensions.width / 2) as i64;
-        let center_height: i64 = (self.dimensions.height / 2) as i64;
+        // Represents the center-point of the image to rotate
+        // The reason for this is that all other logic assumes the origin is at (0, 0) of the
+        // image map. For rotation however, we need to translate the points relative to the center
+        // of the image. For example, in a 4x4 grid, the center point would be (2, 2) and the point
+        // (0, 0) would now be represented as (-2, -2)
+        let center_width: u32 = self.dimensions.width / 2;
+        let center_height: u32 = self.dimensions.height / 2;
 
         match rotation {
             Rotation::None => self.sprite_data = self.original_sprite_data.clone(),
@@ -91,20 +96,22 @@ impl Sprite {
 
                 self.original_sprite_data
                     .iter()
-                    .for_each(|(Point { x, y }, pixel)| {
-                        let current_x: i64 = if (*x as i64) < center_width {
-                            -center_width + (*x as i64)
-                        } else {
-                            (*x as i64) - center_width
-                        };
-                        let current_y: i64 = if (*y as i64) < center_height {
-                            -center_height + (*y as i64)
-                        } else {
-                            (*y as i64) - center_height
-                        };
-
-                        let new_x = (current_y + center_height) as u32;
-                        let new_y = (-current_x + center_width) as u32;
+                    .map(|(point, pixel)| {
+                        (
+                            Self::relocate_point_around_origin(
+                                Point::new(center_width, center_height),
+                                *point,
+                            ),
+                            pixel,
+                        )
+                    })
+                    .for_each(|((translated_x, translated_y), pixel)| {
+                        let new_x =
+                            u32::try_from(translated_y + i32::try_from(center_height).unwrap())
+                                .unwrap();
+                        let new_y =
+                            u32::try_from(-translated_x + i32::try_from(center_width).unwrap())
+                                .unwrap();
 
                         new_sprite_data.insert(Point::new(new_x, new_y), *pixel);
                     });
@@ -116,20 +123,22 @@ impl Sprite {
 
                 self.original_sprite_data
                     .iter()
-                    .for_each(|(Point { x, y }, pixel)| {
-                        let current_x: i64 = if (*x as i64) < center_width {
-                            -center_width + (*x as i64)
-                        } else {
-                            (*x as i64) - center_width
-                        };
-                        let current_y: i64 = if (*y as i64) < center_height {
-                            -center_height + (*y as i64)
-                        } else {
-                            (*y as i64) - center_height
-                        };
-
-                        let new_x = (-current_y + center_height) as u32;
-                        let new_y = (current_x + center_width) as u32;
+                    .map(|(point, pixel)| {
+                        (
+                            Self::relocate_point_around_origin(
+                                Point::new(center_width, center_height),
+                                *point,
+                            ),
+                            pixel,
+                        )
+                    })
+                    .for_each(|((translated_x, translated_y), pixel)| {
+                        let new_x =
+                            u32::try_from(-translated_y + i32::try_from(center_height).unwrap())
+                                .unwrap();
+                        let new_y =
+                            u32::try_from(translated_x + i32::try_from(center_width).unwrap())
+                                .unwrap();
 
                         new_sprite_data.insert(Point::new(new_x, new_y), *pixel);
                     });
@@ -141,22 +150,36 @@ impl Sprite {
 
                 self.original_sprite_data
                     .iter()
-                    .for_each(|(Point { x, y }, pixel)| {
-                        let current_y: i64 = if (*y as i64) < center_height {
-                            -center_height + (*y as i64)
-                        } else {
-                            (*y as i64) - center_height
-                        };
+                    .map(|(point, pixel)| {
+                        (
+                            Self::relocate_point_around_origin(
+                                Point::new(center_width, center_height),
+                                *point,
+                            ),
+                            pixel,
+                        )
+                    })
+                    .for_each(|((translated_x, translated_y), pixel)| {
+                        let new_x: u32 =
+                            u32::try_from(translated_x + i32::try_from(center_width).unwrap())
+                                .unwrap();
+                        let new_y: u32 =
+                            u32::try_from(-translated_y + i32::try_from(center_width).unwrap())
+                                .unwrap();
 
-                        // let new_x = (current_y + center_height) as u32;
-                        let new_y = (-current_y + center_width) as u32;
-
-                        new_sprite_data.insert(Point::new(*x, new_y), *pixel);
+                        new_sprite_data.insert(Point::new(new_x, new_y), *pixel);
                     });
 
                 self.sprite_data = new_sprite_data;
             }
         }
+    }
+
+    fn relocate_point_around_origin(new_origin: Point, point: Point) -> (i32, i32) {
+        let new_x: i32 = i32::try_from(point.x).unwrap() - i32::try_from(new_origin.x).unwrap();
+        let new_y: i32 = i32::try_from(point.y).unwrap() - i32::try_from(new_origin.y).unwrap();
+
+        (new_x, new_y)
     }
 
     fn build_default_sprite() -> HashMap<Point, Pixel> {
