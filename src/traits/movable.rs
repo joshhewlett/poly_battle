@@ -14,26 +14,27 @@ pub trait Movable: GameObject {
     fn set_prev_origin(&mut self, current_origin: Point);
 
     fn apply_movement(&mut self) {
-        let current_origin = self.origin().clone();
+        let current_origin = self.origin();
         let speed = self.speed();
 
         let new_origin: Point;
         match self.direction() {
             Direction::Up => {
+                println!("Debug: {:#?}", current_origin);
                 new_origin = Point::new(current_origin.x, current_origin.y - speed);
-                self.change_rotation(Rotation::None);
+                // self.change_rotation(Rotation::None);
             }
             Direction::Down => {
                 new_origin = Point::new(current_origin.x, current_origin.y + speed);
-                self.change_rotation(Rotation::UpsideDown);
+                // self.change_rotation(Rotation::UpsideDown);
             }
             Direction::Left => {
                 new_origin = Point::new(current_origin.x - speed, current_origin.y);
-                self.change_rotation(Rotation::Left);
+                // self.change_rotation(Rotation::Left);
             }
             Direction::Right => {
                 new_origin = Point::new(current_origin.x + speed, current_origin.y);
-                self.change_rotation(Rotation::Right);
+                // self.change_rotation(Rotation::Right);
             }
         }
 

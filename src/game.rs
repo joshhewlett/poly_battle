@@ -35,6 +35,7 @@ pub struct Game {
     boundary: Boundary,
     // Coins that exist in the world
     coins: Vec<Coin>,
+    projectiles: Vec<Projectile>,
 }
 
 impl Game {
@@ -52,11 +53,15 @@ impl Game {
         let coin_origin = Point::new(map_dimensions.origin.x + 100, map_dimensions.origin.y + 100);
         let coins = vec![Coin::new(coin_origin)];
 
+        // Create projectiles
+        let projectiles = vec![Projectile::default()];
+
         Self {
             map_dimensions,
             boundary,
             player,
             coins,
+            projectiles,
         }
     }
 
@@ -83,10 +88,16 @@ impl Game {
 
         //// Tick GameObjects
         self.player.tick();
+        self.projectiles
+            .iter_mut()
+            .for_each(|mut p| p.tick());
 
         //// Handle collisions
         // If player collides with boundary/wall, return to original position
         self.handle_collisions_with_boundary();
+
+        // If projectile collides with boundary, destroy it
+        self.handle_collisions_project_and_boundary();
 
         // If player collides with coin, "collect" coin
         self.handle_collisions_with_coins();
@@ -133,6 +144,30 @@ impl Game {
         }
     }
 
+    fn handle_collisions_project_and_boundary(&mut self) {
+
+        fn did_projectile_collide_with_boundary(boundary_points: &HashMap<Point, Pixel>, projectile: &Projectile) -> Option<u32> {
+            for proj_point in projectile.effective_points() {
+                if boundary_points.contains_key(proj_point) {
+                    return Some(projectile.id())
+                }
+            }
+            None
+        }
+
+        let projectiles_to_destroy: Vec<u32> = self
+            .projectiles
+            .iter()
+            .map(|p| did_projectile_collide_with_boundary(self.boundary.effective_pixels(), p))
+            .filter(|p_id| p_id.is_some())
+            .map(|p_id| p_id.unwrap())
+            .collect();
+
+        for projectile_id in projectiles_to_destroy {
+            self.destroy_projectile(projectile_id);
+        }
+    }
+
     fn handle_collisions_with_coins(&mut self) {
         let coins_to_collect: Vec<u32> = self
             .coins
@@ -160,11 +195,24 @@ impl Game {
         println!("Player coin count: {}", self.player.coin_count());
     }
 
+    fn destroy_projectile(&mut self, projectile_id: u32) {
+        let index_opt = self
+            .projectiles
+            .iter()
+            .position(|projectile| projectile.id() == projectile_id)
+            .expect(format!("Projectile (ID: {}) not found", projectile_id).as_str());
+
+        self.projectiles.remove(index_opt);
+    }
+
     fn all_game_objects(&self) -> Vec<&dyn GameObject> {
         let mut all_game_objects: Vec<&dyn GameObject> = vec![&self.boundary, &self.player];
         self.coins
             .iter()
             .for_each(|coin| all_game_objects.push(coin));
+        self.projectiles
+            .iter()
+            .for_each(|projectile| all_game_objects.push(projectile));
 
         // Sort game objects by background -> foreground
 
