@@ -7,7 +7,7 @@ use crate::util::calc_effective_sprite_pixels;
 ///
 /// Coin definition
 ///
-pub const COIN_SPRITE_FILENAME: &'static str = "coin_sprite.png";
+pub const COIN_SPRITE_FILENAME: &'static str = "coin_sprite";
 static mut ID_COUNTER: u32 = 0;
 
 pub struct Coin {

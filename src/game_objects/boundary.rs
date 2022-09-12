@@ -86,7 +86,7 @@ impl Boundary {
             for x in 0..shape_data_grid[y].len() {
                 let color = shape_data_grid[y][x];
                 if color.is_some() {
-                    let location = Point::new(x as u32, y as u32);
+                    let location = Point::new(x as i32, y as i32);
                     pixels.insert(location.clone(), Pixel::new(color.unwrap()));
                 }
             }

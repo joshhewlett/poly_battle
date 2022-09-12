@@ -1,10 +1,12 @@
+use serde::Deserialize;
+
 ///
 /// Structs
 ///
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Deserialize)]
 pub struct Point {
-    pub x: u32,
-    pub y: u32,
+    pub x: i32,
+    pub y: i32,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -24,7 +26,7 @@ pub struct Color {
 /// Point implementation
 ///
 impl Point {
-    pub fn new(x: u32, y: u32) -> Point {
+    pub fn new(x: i32, y: i32) -> Point {
         Self { x, y }
     }
 }

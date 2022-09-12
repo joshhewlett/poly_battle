@@ -9,3 +9,5 @@ edition = "2021"
 sdl2 = "*"
 rand = "*"
 image = "*"
+serde = { version = "*", features = ["derive"] }
+serde_json = "*"

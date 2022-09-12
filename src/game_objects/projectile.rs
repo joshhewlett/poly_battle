@@ -3,7 +3,7 @@ use crate::structs::{Dimensions, Direction, GameObjectType, Pixel, Point, Rotati
 use crate::traits::{GameObject, Movable};
 use crate::util::calc_effective_sprite_pixels;
 
-pub const PROJECTILE_SPRITE_FILENAME: &'static str = "projectile_sprite.png";
+pub const PROJECTILE_SPRITE_FILENAME: &'static str = "projectile_sprite";
 static mut ID_COUNTER: u32 = 0;
 
 pub struct Projectile {

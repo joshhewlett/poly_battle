@@ -7,7 +7,7 @@ use crate::util::calc_effective_sprite_pixels;
 ///
 /// Player definition
 ///
-pub const PLAYER_SPRITE_FILENAME: &'static str = "player_sprite_2.png";
+pub const PLAYER_SPRITE_FILENAME: &'static str = "player_sprite_2";
 static mut ID_COUNTER: u32 = 0;
 
 pub struct Player {
@@ -79,7 +79,7 @@ impl GameObject for Player {
         }
         if self.current_rotation != prev_rotation {
             something_changed = true;
-            self.sprite.rotate_sprite(self.current_rotation);
+            self.sprite.rotate_sprite_around_origin(self.current_rotation);
         }
 
         if something_changed {

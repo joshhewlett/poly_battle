@@ -17,7 +17,7 @@ impl GameMapDimensions {
         Self {
             width,
             height,
-            center: Point::new(width / 2, height / 2),
+            center: Point::new((width / 2) as i32, (height / 2) as i32),
             origin: Point::new(0, 0),
         }
     }
@@ -106,8 +106,8 @@ impl Game {
         // Spawn coin if no other coin exists
         if self.coins.is_empty() {
             let mut rng = rand::thread_rng();
-            let x = rng.gen_range(0..self.map_dimensions.width) as u32;
-            let y = rng.gen_range(0..self.map_dimensions.height) as u32;
+            let x = rng.gen_range(0..self.map_dimensions.width) as i32;
+            let y = rng.gen_range(0..self.map_dimensions.height) as i32;
 
             self.coins.push(Coin::new(Point::new(x, y)));
         }
