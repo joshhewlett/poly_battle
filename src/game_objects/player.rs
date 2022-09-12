@@ -22,6 +22,7 @@ pub struct Player {
     current_direction: Direction,
     current_rotation: Rotation,
     coin_count: u32,
+    frames_since_last_shot: u32,
 }
 
 impl Player {
@@ -41,6 +42,7 @@ impl Player {
             current_rotation: Rotation::Up,
             speed: 5,
             coin_count: 0,
+            frames_since_last_shot: 0,
         }
     }
 
@@ -65,10 +67,19 @@ impl Player {
     pub fn change_speed(&mut self, speed: u32) {
         self.speed = speed;
     }
+
+    pub fn reset_frames_since_last_shot(&mut self) {
+        self.frames_since_last_shot = 0;
+    }
+
+    pub fn frames_since_last_shot(&self) -> u32 {
+        self.frames_since_last_shot
+    }
 }
 
 impl GameObject for Player {
     fn tick(&mut self) {
+        self.frames_since_last_shot += 1;
         let prev_rotation = self.current_rotation;
 
         self.apply_movement();

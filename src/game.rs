@@ -5,6 +5,10 @@ use rand::Rng;
 use sdl2::render::WindowCanvas;
 use std::collections::{HashMap, HashSet};
 
+const FRAME_RATE: u8 = 60;
+const MAX_FIRE_RATE_PER_SEC: u8 = 7;
+const MIN_FRAMES_BETWEEN_SHOTS: u8 = FRAME_RATE / MAX_FIRE_RATE_PER_SEC;
+
 struct GameMapDimensions {
     pub width: u32,
     pub height: u32,
@@ -180,11 +184,16 @@ impl Game {
     }
 
     fn fire_projectile(&mut self) {
+        if MIN_FRAMES_BETWEEN_SHOTS as u32 > self.player.frames_since_last_shot() {
+            return;
+        }
+
         self.projectiles.push(Projectile::new(
             self.player.origin(),
             self.player.direction(),
             self.player.rotation(),
         ));
+        self.player.reset_frames_since_last_shot();
     }
 
     fn collect_coin(&mut self, coin_id: u32) {
