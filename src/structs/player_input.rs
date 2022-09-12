@@ -10,6 +10,7 @@ pub enum Key {
     Num3,
     Num4,
     Num5,
+    SpaceBar,
     W,
     A,
     S,

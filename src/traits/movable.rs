@@ -20,13 +20,12 @@ pub trait Movable: GameObject {
         let new_origin: Point;
         match self.direction() {
             Direction::Up => {
-                println!("Debug: {:#?}", current_origin);
                 new_origin = Point::new(current_origin.x, current_origin.y - speed);
-                self.change_rotation(Rotation::None);
+                self.change_rotation(Rotation::Up);
             }
             Direction::Down => {
                 new_origin = Point::new(current_origin.x, current_origin.y + speed);
-                self.change_rotation(Rotation::UpsideDown);
+                self.change_rotation(Rotation::Down);
             }
             Direction::Left => {
                 new_origin = Point::new(current_origin.x - speed, current_origin.y);

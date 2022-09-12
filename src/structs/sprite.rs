@@ -1,10 +1,10 @@
 use crate::structs::{Color, Pixel, Point, Rotation};
 use image::io::Reader as ImageReader;
 use image::{GenericImageView, Pixel as ImagePixel};
+use serde::Deserialize;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufReader, Read};
-use serde::Deserialize;
 
 pub const SPRITE_RESOURCE_DIR: &'static str = "resources/sprites/";
 
@@ -64,15 +64,11 @@ impl Sprite {
     }
 
     pub fn new_from_file(file_name: &str) -> Self {
-
         let metadata_filename = SPRITE_RESOURCE_DIR.to_owned() + file_name + ".json";
         let image_filename = SPRITE_RESOURCE_DIR.to_owned() + file_name + ".png";
 
         // Retrieve metadata
-        let metadata_file = File::options()
-            .read(true)
-            .open(metadata_filename)
-            .unwrap();
+        let metadata_file = File::options().read(true).open(metadata_filename).unwrap();
 
         let mut metadata_contents = String::new();
         BufReader::new(metadata_file)
@@ -80,16 +76,13 @@ impl Sprite {
             .unwrap();
 
         // Deserialize metadata
-        let metadata: SpriteMetadata = serde_json::from_str(&metadata_contents)
-            .expect("Error deserializing sprite metadata");
+        let metadata: SpriteMetadata =
+            serde_json::from_str(&metadata_contents).expect("Error deserializing sprite metadata");
         let dimensions = metadata.dimensions;
         let origin = metadata.origin;
 
         // Decode image info
-        let img = ImageReader::open(image_filename)
-            .unwrap()
-            .decode()
-            .unwrap();
+        let img = ImageReader::open(image_filename).unwrap().decode().unwrap();
 
         let mut sprite_data: HashMap<Point, Pixel> = HashMap::new();
         img.pixels()
@@ -132,46 +125,40 @@ impl Sprite {
         // let center_height: u32 = self.dimensions.height / 2;
 
         match rotation {
-            Rotation::None => self.sprite_data = self.original_sprite_data.clone(),
+            Rotation::Up => self.sprite_data = self.original_sprite_data.clone(),
             Rotation::Left => {
                 let mut new_sprite_data: HashMap<Point, Pixel> = HashMap::new();
 
-                self.original_sprite_data
-                    .iter()
-                    .for_each(|(point, pixel)| {
-                        let new_x = point.y;
-                        let new_y = -point.x;
+                self.original_sprite_data.iter().for_each(|(point, pixel)| {
+                    let new_x = point.y;
+                    let new_y = -point.x;
 
-                        new_sprite_data.insert(Point::new(new_x, new_y), *pixel);
-                    });
+                    new_sprite_data.insert(Point::new(new_x, new_y), *pixel);
+                });
 
                 self.sprite_data = new_sprite_data;
             }
             Rotation::Right => {
                 let mut new_sprite_data: HashMap<Point, Pixel> = HashMap::new();
 
-                self.original_sprite_data
-                    .iter()
-                    .for_each(|(point, pixel)| {
-                        let new_x = -point.y;
-                        let new_y = point.x;
+                self.original_sprite_data.iter().for_each(|(point, pixel)| {
+                    let new_x = -point.y;
+                    let new_y = point.x;
 
-                        new_sprite_data.insert(Point::new(new_x, new_y), *pixel);
-                    });
+                    new_sprite_data.insert(Point::new(new_x, new_y), *pixel);
+                });
 
                 self.sprite_data = new_sprite_data;
             }
-            Rotation::UpsideDown => {
+            Rotation::Down => {
                 let mut new_sprite_data: HashMap<Point, Pixel> = HashMap::new();
 
-                self.original_sprite_data
-                    .iter()
-                    .for_each(|(point, pixel)| {
-                        let new_x = point.x;
-                        let new_y = -point.y;
+                self.original_sprite_data.iter().for_each(|(point, pixel)| {
+                    let new_x = point.x;
+                    let new_y = -point.y;
 
-                        new_sprite_data.insert(Point::new(new_x, new_y), *pixel);
-                    });
+                    new_sprite_data.insert(Point::new(new_x, new_y), *pixel);
+                });
 
                 self.sprite_data = new_sprite_data;
             }
@@ -210,7 +197,7 @@ impl Sprite {
             for x in 0..shape[y].len() {
                 let color = shape[y][x];
                 if color.is_some() {
-                    let location = Point::new(x as i32 , y as i32);
+                    let location = Point::new(x as i32, y as i32);
                     pixels.insert(location.clone(), Pixel::new(color.unwrap()));
                 }
             }

@@ -53,15 +53,12 @@ impl Game {
         let coin_origin = Point::new(map_dimensions.origin.x + 100, map_dimensions.origin.y + 100);
         let coins = vec![Coin::new(coin_origin)];
 
-        // Create projectiles
-        let projectiles = vec![Projectile::default()];
-
         Self {
             map_dimensions,
             boundary,
             player,
             coins,
-            projectiles,
+            projectiles: Vec::new(),
         }
     }
 
@@ -79,6 +76,7 @@ impl Game {
                     Key::Num3 => self.player.change_speed(3),
                     Key::Num4 => self.player.change_speed(4),
                     Key::Num5 => self.player.change_speed(5),
+                    Key::SpaceBar => self.fire_projectile(),
                 },
             }
             println!("Player direction: {:?}", self.player.direction());
@@ -88,9 +86,7 @@ impl Game {
 
         //// Tick GameObjects
         self.player.tick();
-        self.projectiles
-            .iter_mut()
-            .for_each(|mut p| p.tick());
+        self.projectiles.iter_mut().for_each(|mut p| p.tick());
 
         //// Handle collisions
         // If player collides with boundary/wall, return to original position
@@ -145,11 +141,13 @@ impl Game {
     }
 
     fn handle_collisions_project_and_boundary(&mut self) {
-
-        fn did_projectile_collide_with_boundary(boundary_points: &HashMap<Point, Pixel>, projectile: &Projectile) -> Option<u32> {
+        fn did_projectile_collide_with_boundary(
+            boundary_points: &HashMap<Point, Pixel>,
+            projectile: &Projectile,
+        ) -> Option<u32> {
             for proj_point in projectile.effective_points() {
                 if boundary_points.contains_key(proj_point) {
-                    return Some(projectile.id())
+                    return Some(projectile.id());
                 }
             }
             None
@@ -181,6 +179,14 @@ impl Game {
         }
     }
 
+    fn fire_projectile(&mut self) {
+        self.projectiles.push(Projectile::new(
+            self.player.origin(),
+            self.player.direction(),
+            self.player.rotation(),
+        ));
+    }
+
     fn collect_coin(&mut self, coin_id: u32) {
         println!("Collected coin: {}", coin_id);
         let index_opt = self
@@ -206,15 +212,14 @@ impl Game {
     }
 
     fn all_game_objects(&self) -> Vec<&dyn GameObject> {
-        let mut all_game_objects: Vec<&dyn GameObject> = vec![&self.boundary, &self.player];
+        let mut all_game_objects: Vec<&dyn GameObject> = vec![&self.boundary];
         self.coins
             .iter()
             .for_each(|coin| all_game_objects.push(coin));
         self.projectiles
             .iter()
             .for_each(|projectile| all_game_objects.push(projectile));
-
-        // Sort game objects by background -> foreground
+        all_game_objects.push(&self.player);
 
         all_game_objects
     }

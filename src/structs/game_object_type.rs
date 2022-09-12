@@ -6,5 +6,5 @@ pub enum GameObjectType {
     Player,
     Coin,
     Boundary,
-    Projectile
+    Projectile,
 }

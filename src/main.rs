@@ -79,6 +79,7 @@ pub fn start() {
                     Keycode::Num3 => player_input = Some(PlayerInput::KeyDown(Key::Num3)),
                     Keycode::Num4 => player_input = Some(PlayerInput::KeyDown(Key::Num4)),
                     Keycode::Num5 => player_input = Some(PlayerInput::KeyDown(Key::Num5)),
+                    Keycode::Space => player_input = Some(PlayerInput::KeyDown(Key::SpaceBar)),
                     _ => {}
                 },
                 _ => {}

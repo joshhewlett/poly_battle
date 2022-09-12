@@ -11,9 +11,9 @@ pub enum Direction {
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Rotation {
-    None,
+    Up,
     Right,
-    UpsideDown,
+    Down,
     Left,
 }
 
@@ -31,6 +31,6 @@ impl Default for Direction {
 ///
 impl Default for Rotation {
     fn default() -> Self {
-        Rotation::None
+        Rotation::Up
     }
 }

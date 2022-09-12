@@ -38,7 +38,7 @@ impl Player {
             effective_sprite_pixels,
             effective_sprite_points,
             current_direction: Direction::Up,
-            current_rotation: Rotation::None,
+            current_rotation: Rotation::Up,
             speed: 5,
             coin_count: 0,
         }
@@ -79,7 +79,8 @@ impl GameObject for Player {
         }
         if self.current_rotation != prev_rotation {
             something_changed = true;
-            self.sprite.rotate_sprite_around_origin(self.current_rotation);
+            self.sprite
+                .rotate_sprite_around_origin(self.current_rotation);
         }
 
         if something_changed {

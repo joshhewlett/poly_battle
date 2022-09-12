@@ -1,7 +1,7 @@
-use std::collections::{HashMap, HashSet};
 use crate::structs::{Dimensions, Direction, GameObjectType, Pixel, Point, Rotation, Sprite};
 use crate::traits::{GameObject, Movable};
 use crate::util::calc_effective_sprite_pixels;
+use std::collections::{HashMap, HashSet};
 
 pub const PROJECTILE_SPRITE_FILENAME: &'static str = "projectile_sprite";
 static mut ID_COUNTER: u32 = 0;
@@ -13,13 +13,16 @@ pub struct Projectile {
     sprite: Sprite,
     effective_sprite_pixels: HashMap<Point, Pixel>,
     effective_sprite_points: HashSet<Point>,
-    speed: u32,
     direction: Direction,
+    rotation: Rotation,
+    speed: u32,
 }
 
 impl Projectile {
-    pub fn new(origin: Point) -> Self {
-        let sprite = Sprite::new_from_file(PROJECTILE_SPRITE_FILENAME);
+    pub fn new(origin: Point, direction: Direction, rotation: Rotation) -> Self {
+        let mut sprite = Sprite::new_from_file(PROJECTILE_SPRITE_FILENAME);
+        sprite.rotate_sprite_around_origin(rotation);
+
         let (effective_sprite_pixels, effective_sprite_points) =
             calc_effective_sprite_pixels(&sprite, origin);
 
@@ -30,8 +33,9 @@ impl Projectile {
             sprite,
             effective_sprite_pixels,
             effective_sprite_points,
-            direction: Direction::Up,
-            speed: 1
+            direction,
+            rotation,
+            speed: 10,
         }
     }
 
@@ -90,12 +94,6 @@ impl GameObject for Projectile {
     }
 }
 
-impl Default for Projectile {
-    fn default() -> Self {
-        Projectile::new(Point::new(400, 300))
-    }
-}
-
 impl Movable for Projectile {
     fn direction(&self) -> Direction {
         self.direction
@@ -106,7 +104,7 @@ impl Movable for Projectile {
     }
 
     fn rotation(&self) -> Rotation {
-        Rotation::None
+        self.rotation
     }
 
     fn change_rotation(&mut self, _new_rotation: Rotation) {
