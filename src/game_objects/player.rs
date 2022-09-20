@@ -21,6 +21,7 @@ pub struct Player {
     speed: u32,
     current_direction: Direction,
     current_rotation: Rotation,
+    rotation_enabled: bool,
     coin_count: u32,
     frames_since_last_shot: u32,
 }
@@ -40,6 +41,7 @@ impl Player {
             effective_sprite_points,
             current_direction: Direction::Up,
             current_rotation: Rotation::Up,
+            rotation_enabled: true,
             speed: 5,
             coin_count: 0,
             frames_since_last_shot: 0,
@@ -153,6 +155,18 @@ impl Movable for Player {
 
     fn rotation(&self) -> Rotation {
         self.current_rotation
+    }
+
+    fn rotation_enabled(&self) -> bool {
+        self.rotation_enabled
+    }
+
+    fn disable_rotation(&mut self) {
+        self.rotation_enabled = false;
+    }
+
+    fn enable_rotation(&mut self) {
+        self.rotation_enabled = true;
     }
 
     fn change_rotation(&mut self, new_rotation: Rotation) {

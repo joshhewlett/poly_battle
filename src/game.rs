@@ -9,6 +9,7 @@ use std::collections::{HashMap, HashSet};
 const FRAME_RATE: u8 = 60;
 const MAX_FIRE_RATE_PER_SEC: u8 = 7;
 const MIN_FRAMES_BETWEEN_SHOTS: u8 = FRAME_RATE / MAX_FIRE_RATE_PER_SEC;
+const FREE_ROME_ENABLED: bool = true;
 
 struct GameMapDimensions {
     pub width: u32,
@@ -52,7 +53,16 @@ impl Game {
         let boundary = Boundary::new(map_dimensions.width, map_dimensions.height);
 
         // Create player
-        let player = Player::new(map_dimensions.center.clone());
+        let mut player = Player::new(Point::new(
+            (map_dimensions.width / 2) as i32,
+            (map_dimensions.height - 50) as i32,
+        ));
+
+        player.change_direction(Direction::Stopped);
+
+        if FREE_ROME_ENABLED {
+            player.disable_rotation();
+        }
 
         // Create initial coin
         let coin_origin = Point::new(map_dimensions.origin.x + 100, map_dimensions.origin.y + 100);
@@ -101,7 +111,7 @@ impl Game {
         self.handle_collisions_projectile_and_boundary();
 
         // If player projectile collides with coin, "collect" coin
-        self.handle_collisions_projectile_and_coins();
+        self.handle_collisions_projectiles_and_coins();
 
         //// Additional events
         // Spawn coin if no other coin exists
@@ -201,9 +211,16 @@ impl Game {
             return;
         }
 
+        let projectile_direction = match self.player.rotation() {
+            Rotation::Up => Direction::Up,
+            Rotation::Right => Direction::Right,
+            Rotation::Down => Direction::Down,
+            Rotation::Left => Direction::Left,
+        };
+
         self.projectiles.push(Projectile::new(
             self.player.origin(),
-            self.player.direction(),
+            projectile_direction,
             self.player.rotation(),
         ));
         self.player.reset_frames_since_last_shot();

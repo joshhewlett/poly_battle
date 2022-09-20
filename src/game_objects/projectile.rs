@@ -15,6 +15,7 @@ pub struct Projectile {
     effective_sprite_points: HashSet<Point>,
     direction: Direction,
     rotation: Rotation,
+    rotation_enabled: bool,
     speed: u32,
 }
 
@@ -35,6 +36,7 @@ impl Projectile {
             effective_sprite_points,
             direction,
             rotation,
+            rotation_enabled: false,
             speed: 10,
         }
     }
@@ -105,6 +107,18 @@ impl Movable for Projectile {
 
     fn rotation(&self) -> Rotation {
         self.rotation
+    }
+
+    fn rotation_enabled(&self) -> bool {
+        self.rotation_enabled
+    }
+
+    fn disable_rotation(&mut self) {
+        self.rotation_enabled = false;
+    }
+
+    fn enable_rotation(&mut self) {
+        self.rotation_enabled = true;
     }
 
     fn change_rotation(&mut self, _new_rotation: Rotation) {
