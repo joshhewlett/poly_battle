@@ -1,6 +1,7 @@
 use crate::game_objects::*;
 use crate::structs::*;
 use crate::traits::*;
+use crate::util::has_collided;
 use rand::Rng;
 use sdl2::render::WindowCanvas;
 use std::collections::{HashMap, HashSet};
@@ -97,10 +98,10 @@ impl Game {
         self.handle_collisions_with_boundary();
 
         // If projectile collides with boundary, destroy it
-        self.handle_collisions_project_and_boundary();
+        self.handle_collisions_projectile_and_boundary();
 
-        // If player collides with coin, "collect" coin
-        self.handle_collisions_with_coins();
+        // If player projectile collides with coin, "collect" coin
+        self.handle_collisions_projectile_and_coins();
 
         //// Additional events
         // Spawn coin if no other coin exists
@@ -144,7 +145,7 @@ impl Game {
         }
     }
 
-    fn handle_collisions_project_and_boundary(&mut self) {
+    fn handle_collisions_projectile_and_boundary(&mut self) {
         fn did_projectile_collide_with_boundary(
             boundary_points: &HashMap<Point, Pixel>,
             projectile: &Projectile,
@@ -170,11 +171,23 @@ impl Game {
         }
     }
 
-    fn handle_collisions_with_coins(&mut self) {
+    fn handle_collisions_projectiles_and_coins(&mut self) {
+        // It doesn't matter what projectile collided with a coin. So we should just loop through
+        // the projectile list once and create a single HashSet containing all projectile effective
+        // points. This allows each coin to check for collision using a O(n) operation (instead of O(n * m))
+        let mut all_projectile_points: HashSet<Point> = HashSet::new();
+        &self
+            .projectiles
+            .iter()
+            .flat_map(|projectile| projectile.effective_points())
+            .for_each(|point| {
+                all_projectile_points.insert(*point);
+            });
+
         let coins_to_collect: Vec<u32> = self
             .coins
             .iter()
-            .filter(|coin| coin.has_collided_with(Box::new(&self.player)))
+            .filter(|coin| has_collided(coin.effective_points(), &all_projectile_points))
             .map(|coin| coin.id())
             .collect();
 
